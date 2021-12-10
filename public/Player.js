@@ -30,44 +30,48 @@ export default class Player {
     this.prev = new Vector(this.pos.x, this.pos.y);
     this.pos.add(this.vel);
     this.pos.x = constrain(this.pos.x, 0, canvas.width - this.w);
-    this.pos.y = constrain(this.pos.y, 0, canvas.height - this.h);
+    this.pos.y = constrain(this.pos.y, 0, canvas.height * 2);
     this.vel.x = constrain(this.vel.x, -MOVE_SPEED, MOVE_SPEED);
+
+    if (this.pos.y > canvas.height + 100) {
+      this.vel = new Vector(0, 0);
+      this.pos = new Vector(10, 10);
+    }
   }
 
   collisions(platforms, viewport) {
     platforms.forEach((platform) => {
       if (doBoxesIntersect(this, platform, viewport)) {
         platform.colliding = true;
-        const platXPlusViewport = platform.pos.x - viewport.x
-        const distX = (this.pos.x + this.w) < platXPlusViewport + (platform.w / 2) ? (this.pos.x + this.w) - platform.pos.x
-          : this.pos.x > platXPlusViewport + (platform.w / 2) ? this.pos.x - (platform.pos.x + platform.w)
+        const platXPlusViewport = platform.pos.x + viewport.x;
+        const xTest = (this.pos.x + (this.w / 2)) - (platXPlusViewport + (platform.w / 2));
+
+        const distX = xTest < 0 ? (this.pos.x + this.w) - platform.pos.x
+          : xTest > 0 ? this.pos.x - (platform.pos.x + platform.w)
             : undefined;
+
         const distY = (this.pos.y + this.h) < platform.pos.y + (platform.h / 2) ? (this.pos.y + this.h) - platform.pos.y
           : this.pos.y > platform.pos.y + (platform.h / 2) ? this.pos.y - (platform.pos.y + platform.h)
             : undefined;
+
         const overlap = {
           x: distX - viewport.x,
           y: distY,
         }
-        window.overlap = overlap;
+
         if (Math.abs(overlap.y) < Math.abs(overlap.x)) {
           if (overlap.y < 0) {
-            console.log("top", overlap.y)
-
             this.pos.y += Math.abs(overlap.y);
             this.vel.y = constrain(this.vel.y, 0, 9999);
           }
           else {
-
             this.pos.y -= Math.abs(overlap.y);
             this.vel.y = constrain(this.vel.y, -9999, 0);
           }
         }
         else {
           if (overlap.x < 0) {
-            console.log("right", overlap.x)
-
-            //this.pos.x += Math.abs(overlap.x);
+            this.pos.x += Math.abs(overlap.x);
           }
           else {
             this.pos.x -= Math.abs(overlap.x);

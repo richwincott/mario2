@@ -10,13 +10,13 @@ let bgImg;
 let debug = false;
 
 window.GRAVITY = 20;
-window.MOVE_SPEED = 250;
+window.MOVE_SPEED = 220;
 window.JUMP_HEIGHT = 450;
 
 function preload(callback) {
   Promise.all([fetch('mario_sprite.png'), fetch('bg.png'), fetch('bg-plain.png'), fetch('levels/1.json')])
     .then(([marioSprite, bgSprite, bg, level1]) => {
-      Promise.all([processSpriteBoard(marioSprite, 40, 40, 11, 9), processSpriteBoard(bgSprite, 30, 30, 15, 27), processImage(bg), processLevel(level1)])
+      Promise.all([processSpriteBoard(marioSprite, 40, 40, 11, 9), processSpriteBoard(bgSprite, 32, 32, 17, 16), processImage(bg), processLevel(level1)])
         .then(([mImgs, bgImgs, bg, level1]) => callback(mImgs, bgImgs, bg, level1));
     })
 }
@@ -25,7 +25,7 @@ function setup([mImgs, bgImgs, bg, level1], callback) {
   canvas = document.getElementById("canvas");
   canvas.addEventListener('click', mouseClick);
   canvas.width = 800;
-  canvas.height = 450;
+  canvas.height = 447;
   window.WIDTH = canvas.width;
   window.HEIGHT = canvas.height;
   window.ctx = canvas.getContext("2d");
@@ -38,7 +38,7 @@ function setup([mImgs, bgImgs, bg, level1], callback) {
   for (let i = 0; i < level1.length; i++) {
     for (let j = 0; j < level1[i].length; j++) {
       if (level1[i][j]) {
-        platforms.push(new Platform(j * 30, i * 30, 30, 30, bgImgs[390]));
+        platforms.push(new Platform(j * 32, i * 32, 33, 33, bgImgs[level1[i][j]]));
       }
     }
   }
@@ -49,21 +49,21 @@ function update(deltaTime) {
   player.update(platforms, viewport);
   player.collisions(platforms, viewport);
   if (player.pos.x > 100) {
-    viewport.x = -player.pos.x / 2;
+    viewport.x = -player.pos.x * 0.7;
   }
-  else viewport.x = -50;
+  else viewport.x = -70;
 }
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(bgImg, 0, 0);
+  for (let i = 0; i < 5; i++) {
+    ctx.drawImage(bgImg, (i * bgImg.width) + (viewport.x * 0.8), 0);
+  }
   for (let platform of platforms) {
     platform.show(viewport, debug);
   }
   player.show(Math.floor((Math.floor(TIME.previous) % 300) / 100));
   text(viewport, 10, 20);
-  if (window.overlap)
-    text(window.overlap, 10, 40);
 }
 
 preload((...assets) => {
