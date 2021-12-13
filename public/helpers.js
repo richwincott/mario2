@@ -53,7 +53,11 @@ function constrain(value, min, max) {
 }
 
 function text(value, x, y) {
-  ctx.fillText(JSON.stringify(value), x, y);
+  ctx.fillText(typeof value != "string" ? JSON.stringify(value) : value, x, y);
+}
+
+function map(num, in_min, in_max, out_min, out_max) {
+  return (num - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
 function processImage(image) {
@@ -79,7 +83,7 @@ function processLevel(level) {
   })
 }
 
-function processSpriteBoard(spriteImage, w, h, r, c, preview = false) {
+function processSpriteBoard(spriteImage, w, h, r, c, offsetX, offsetY, preview = false) {
   return new Promise((resolve, reject) => {
     processImage(spriteImage).then((img) => {
       const imgs = [];
@@ -89,13 +93,30 @@ function processSpriteBoard(spriteImage, w, h, r, c, preview = false) {
           const sctx = sprite.getContext("2d");
           sprite.width = w;
           sprite.height = h;
-          sctx.drawImage(img, w * j, h * i, w, h, 0, 0, w, h);
-          if (preview) {
-            sprite.setAttribute('title', (i + 1) * (j + 1));
-            document.body.appendChild(sprite)
-          }
+          sctx.drawImage(img, (w * j) + offsetX, (h * i) + offsetY, w, h, 0, 0, w, h);
           imgs.push(sprite);
         }
+      }
+      if (preview) {
+        const div = document.createElement("div");
+        div.className = "sprites";
+        let i = 0;
+        for (let sprite of imgs) {
+          sprite.setAttribute('title', i);
+          sprite.className = "sprite";
+          sprite.addEventListener('click', () => {
+            for (let i = 0; i < document.getElementsByClassName("sprite").length; i++) {
+              const element = document.getElementsByClassName("sprite")[i];
+              element.removeAttribute("style");
+            }
+            sprite.style.border = "3px solid rgb(242 44 255)";
+            console.log("SELECTED_TILE_INDEX = " + sprite.getAttribute('title'));
+            SELECTED_TILE_INDEX = parseInt(sprite.getAttribute('title'));
+          });
+          div.appendChild(sprite);
+          i++;
+        }
+        document.body.appendChild(div);
       }
       resolve(imgs);
     })
@@ -107,13 +128,26 @@ function doBoxesIntersect(a, b, viewport) {
     (Math.abs((a.pos.y + (a.h / 2)) - (b.pos.y + (b.h / 2))) * 2 <= (a.h + b.h));
 }
 
+function flipImg(img) {
+  const flippedImg = document.createElement('canvas');
+  flippedImg.width = img.width;
+  flippedImg.height = img.height;
+  const ictx = flippedImg.getContext("2d");
+  ictx.translate(img.width, 0);
+  ictx.scale(-1, 1);
+  ictx.drawImage(img, 0, 0);
+  return flippedImg;
+}
+
 export {
   Vector,
   Time,
   constrain,
   text,
+  map,
   processLevel,
   processImage,
   processSpriteBoard,
-  doBoxesIntersect
+  doBoxesIntersect,
+  flipImg
 }

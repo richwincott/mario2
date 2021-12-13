@@ -17,12 +17,32 @@
       display: inline-block;
       background-color: #eaeaea;
     }
+
+    .sprites {
+      max-width: 800px;
+      margin: 0 auto;
+      display: none;
+    }
+
+    .sprites canvas {
+      border: 3px solid transparent;
+      margin: 0px 2px;
+      background-color: #5c94fc;
+    }
+
+    #save-level-btn {
+      display: none;
+    }
   </style>
 </head>
 
 <body>
   <br />
   <canvas id="canvas"></canvas>
+  <br />
+  <button onclick="toggleEditMode(event)">Enable edit mode</button>
+  <button id="save-level-btn" onclick="saveLevel(event)">Save level</button>
+  <button onclick="toggleEnemySpawning(event)">Enable enemy spawning</button>
   <br />
   <br />
   <script type="module" src="main.js"></script>

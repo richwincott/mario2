@@ -1,12 +1,13 @@
 import { text, Vector } from './helpers.js';
 
-export default class Platform {
-  constructor(x, y, w, h, img) {
+export default class Tile {
+  constructor(x, y, w, h, passable, img, collisionActions) {
     this.pos = new Vector(x, y);
     this.vel = new Vector(0, 0);
     this.w = w;
     this.h = h;
-    this.collisions = null;
+    this.passable = passable;
+    this.collisionActions = collisionActions;
     this.img = img;
     this.colliding = false;
   }
@@ -22,7 +23,7 @@ export default class Platform {
       );
     }
     else {
-      ctx.drawImage(this.img, this.pos.x + viewport.x, this.pos.y, this.w, this.h)
+      ctx.drawImage(this.img, this.pos.x + viewport.x, this.pos.y, this.w, this.h);
     }
   }
 }
