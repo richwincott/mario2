@@ -2,8 +2,8 @@ import { Vector, constrain, doBoxesIntersect, flipImg } from './helpers.js';
 import Mario from './Mario.js';
 
 export default class Character {
-  constructor(x, y, images) {
-    this.original_pos = new Vector(x, y);
+  constructor(x, y, images, collisionActions) {
+    this.original_pos = new Vector(this instanceof Mario ? (canvas.width / 4) : x, y);
     this.pos = new Vector(x, y);
     this.vel = new Vector(0, 0);
     this.dir = -1;
@@ -11,6 +11,7 @@ export default class Character {
     this.h = 30;
     this.health = 1;
     this.airBourne = false;
+    this.collisionActions = collisionActions;
     this.collisionsEnabled = true;
     this.score = 0;
     this.images = images;
@@ -120,19 +121,37 @@ export default class Character {
     )
   }
 
-  enemyCollisions(enemies, viewport) {
-    this.collision(enemies, viewport,
-      (other, overlap) => null,
+  otherCollisions(others, viewport) {
+    this.collision(others, viewport,
       (other, overlap) => {
-        other.takeDamage();
-        this.vel.y = 0;
-        this.vel.x = 0;
-        this.airBourne = false;
-        this.jump();
-        this.score += 5;
+        if (other.collisionActions && other.collisionActions.top) other.collisionActions.top(other, overlap, this);
+        else {
+
+        }
       },
-      (other, overlap) => this.takeDamage(),
-      (other, overlap) => this.takeDamage()
+      (other, overlap) => {
+        if (other.collisionActions && other.collisionActions.bottom) other.collisionActions.bottom(other, overlap, this);
+        else {
+          other.takeDamage();
+          this.vel.y = 0;
+          this.vel.x = 0;
+          this.airBourne = false;
+          this.jump();
+          this.score += 5;
+        }
+      },
+      (other, overlap) => {
+        if (other.collisionActions && other.collisionActions.left) other.collisionActions.left(other, overlap, this);
+        else {
+          this.takeDamage()
+        }
+      },
+      (other, overlap) => {
+        if (other.collisionActions && other.collisionActions.right) other.collisionActions.right(other, overlap, this);
+        else {
+          this.takeDamage()
+        }
+      }
     )
   }
 
@@ -150,10 +169,10 @@ export default class Character {
       this.jump();
   }
 
-  jump() {
+  jump(height = JUMP_HEIGHT) {
     if (this.airBourne) return;
     this.airBourne = true;
-    this.vel.y = -JUMP_HEIGHT;
+    this.vel.y = -height;
   }
 
   move(x, y) {

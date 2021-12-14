@@ -1,11 +1,12 @@
 import Tile from './Tile.js';
 import Mario from './Mario.js';
 import Koopa from './Koopa.js';
-import { Time, text, map, Vector, processLevel, processImage, processSpriteBoard } from './helpers.js';
+import { Time, text, constrain, Vector, processLevel, processImage, processSpriteBoard } from './helpers.js';
+import Mushroom from './Mushroom.js';
 
 let canvas;
 let player;
-let enemies = [];
+let others = [];
 let tiles = [];
 let viewport = new Vector(0, 0);
 let viewportV = new Vector(0, 0);
@@ -14,7 +15,7 @@ let bgImgs;
 let debug = false;
 let koopaImages;
 let level;
-let passableTiles = [125, 126, 127, 70, 16, 17, 18, 7, 22, 23, 93, 94, 95, 141, 142, 143, 77, 78, 79, 109, 110, 111, 3];
+let passableTiles = [125, 126, 127, 70, 16, 17, 18, 7, 22, 23, 93, 94, 95, 141, 142, 143, 77, 78, 79, 109, 110, 111, 3, 260];
 
 window.GRAVITY = 20;
 window.MOVE_SPEED = 140;
@@ -87,27 +88,46 @@ function setup([mImgs, eImgs, bgs, bg, level1], callback) {
   for (let i = 0; i < level.length; i++) {
     for (let j = 0; j < level[i].length; j++) {
       if (level[i][j]) {
-        const dim = { x: bgImgs[level[i][j]].width, y: bgImgs[level[i][j]].height };
-        if (level[i][j] == 7) {
+        if (level[i][j] == 2) {
+          const increaseHealth = (other, overlap, character) => {
+            if (character instanceof Mario) {
+              others.splice(others.indexOf(other), 1);
+              player.health++;
+            }
+          }
+          const spawnMushroom = (other, overlap, character) => {
+            if (character instanceof Mario) {
+              character.pos.y += Math.abs(overlap.y);
+              character.vel.y = constrain(character.vel.y, 0, 9999);
+              others.push(new Mushroom(j, i - 2, { run: [bgImgs[260]] }, -1, {
+                top: increaseHealth, bottom: increaseHealth, left: increaseHealth, right: increaseHealth
+              }));
+            }
+          }
+          tiles.push(new Tile(j, i, false, bgImgs[level[i][j]], {
+            top: spawnMushroom, bottom: null, left: null, right: null
+          }));
+        }
+        else if (level[i][j] == 7) {
           const collectCoin = (other, overlap, character) => {
             if (character instanceof Mario) {
               tiles.splice(tiles.indexOf(other), 1);
               player.score += 20;
             }
           }
-          tiles.push(new Tile(j * dim.x, i * dim.y, dim.x + 1, dim.y, false, bgImgs[level[i][j]], {
+          tiles.push(new Tile(j, i, false, bgImgs[level[i][j]], {
             top: collectCoin, bottom: collectCoin, left: collectCoin, right: collectCoin
           }));
         }
         else {
-          tiles.push(new Tile(j * 16, i * 16, dim.x + 1, dim.y, passableTiles.includes(level[i][j]), bgImgs[level[i][j]]));
+          tiles.push(new Tile(j, i, passableTiles.includes(level[i][j]), bgImgs[level[i][j]]));
         }
       }
     }
   }
   setInterval(() => {
     if (Math.random() < 0.3 && ENEMY_SPAWNING)
-      enemies.push(new Koopa(canvas.width - viewport.x, 30, koopaImages, -1));
+      others.push(new Koopa(canvas.width - viewport.x, 30, koopaImages, -1));
   }, 1000);
   callback();
 }
@@ -115,10 +135,10 @@ function setup([mImgs, eImgs, bgs, bg, level1], callback) {
 function update(deltaTime) {
   player.update(viewport);
   player.tileCollisions(tiles, viewport);
-  player.enemyCollisions(enemies, viewport);
-  for (let enemy of enemies) {
-    enemy.update();
-    enemy.tileCollisions(tiles, { x: 0 });
+  player.otherCollisions(others, viewport);
+  for (let other of others) {
+    other.update();
+    other.tileCollisions(tiles, { x: 0 });
   }
   viewport.add(viewportV);
   if (player.pos.x > (canvas.width / 2) - (player.w + 1)) {
@@ -152,8 +172,8 @@ function draw() {
     tile.show(viewport, debug);
   }
   player.show(Math.floor((Math.floor(TIME.previous) % 300) / 100));
-  for (let enemy of enemies) {
-    enemy.show(Math.floor((Math.floor(TIME.previous) % 200) / 100), viewport);
+  for (let other of others) {
+    other.show(Math.floor((Math.floor(TIME.previous) % 200) / 100), viewport);
   }
   text("Health: " + player.health + "       Score: " + player.score, 10, 20);
 }
@@ -207,11 +227,15 @@ function mouseClick(ev) {
           if (mouseY > i * 16 && mouseY < (i * 16) + 16) {
             //console.log({ currentValue: level[i][j], newValue: SELECTED_TILE_INDEX })
             level[i][j] = SELECTED_TILE_INDEX;
-            let existing = tiles.filter((tile) => tile.pos.x == j * 16 && tile.pos.y == i * 16)[0];
+            let existing = tiles.filter((tile) => {
+              const middle = { x: tile.pos.x + (tile.w / 2), y: tile.pos.y + (tile.h / 2) };
+              return middle.x > j * 16 && middle.x < (j * 16) + 16
+                && middle.y > i * 16 && middle.y < (i * 16) + 16
+            })[0];
             //console.log("existing", existing)
             if (level[i][j]) {
-              if (existing) tiles[tiles.indexOf(existing)] = new Tile(j * 16, i * 16, 17, 16, passableTiles.includes(level[i][j]), bgImgs[level[i][j]]);
-              else tiles.push(new Tile(j * 16, i * 16, 17, 16, passableTiles.includes(level[i][j]), bgImgs[level[i][j]]));
+              if (existing) tiles[tiles.indexOf(existing)] = new Tile(j, i, passableTiles.includes(level[i][j]), bgImgs[level[i][j]]);
+              else tiles.push(new Tile(j, i, passableTiles.includes(level[i][j]), bgImgs[level[i][j]]));
             }
             else {
               if (existing) tiles.splice(tiles.indexOf(existing), 1);
@@ -222,7 +246,7 @@ function mouseClick(ev) {
     }
   }
   else {
-    enemies.push(new Koopa(ev.offsetX - viewport.x, ev.offsetY, koopaImages, player.pos.x < ev.offsetX - viewport.x ? -1 : 1));
+    others.push(new Koopa(ev.offsetX - viewport.x, ev.offsetY, koopaImages, player.pos.x < ev.offsetX - viewport.x ? -1 : 1));
   }
   /* player.vel = new Vector(0, 0);
   player.pos.x = ev.offsetX;

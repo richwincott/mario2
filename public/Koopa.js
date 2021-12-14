@@ -1,5 +1,4 @@
 import Character from './Character.js';
-import { text } from './helpers.js';
 
 export default class Koopa extends Character {
   constructor(x, y, images, dir) {

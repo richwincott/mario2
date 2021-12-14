@@ -1,11 +1,15 @@
-import { text, Vector } from './helpers.js';
+import { Vector } from './helpers.js';
 
 export default class Tile {
-  constructor(x, y, w, h, passable, img, collisionActions) {
+  constructor(j, i, passable, img, collisionActions) {
+    const dim = { x: img.width, y: img.height };
+    const gs = 16;
+    const x = ((j * gs) + (gs / 2)) - dim.x / 2;
+    const y = ((i * gs) + (gs / 2)) - dim.y / 2;
     this.pos = new Vector(x, y);
     this.vel = new Vector(0, 0);
-    this.w = w;
-    this.h = h;
+    this.w = dim.x + 1;
+    this.h = dim.y;
     this.passable = passable;
     this.collisionActions = collisionActions;
     this.img = img;
