@@ -83,7 +83,7 @@ function processLevel(level) {
   })
 }
 
-function processSpriteBoard(spriteImage, w, h, r, c, offsetX, offsetY, preview = false) {
+function processSpriteBoard(spriteImage, w, h, r, c, offsetX, offsetY) {
   return new Promise((resolve, reject) => {
     processImage(spriteImage).then((img) => {
       const imgs = [];
@@ -96,27 +96,6 @@ function processSpriteBoard(spriteImage, w, h, r, c, offsetX, offsetY, preview =
           sctx.drawImage(img, (w * j) + offsetX, (h * i) + offsetY, w, h, 0, 0, w, h);
           imgs.push(sprite);
         }
-      }
-      if (preview) {
-        const div = document.createElement("div");
-        div.className = "sprites";
-        let i = 0;
-        for (let sprite of imgs) {
-          sprite.setAttribute('title', i);
-          sprite.className = "sprite";
-          sprite.addEventListener('click', () => {
-            for (let i = 0; i < document.getElementsByClassName("sprite").length; i++) {
-              const element = document.getElementsByClassName("sprite")[i];
-              element.removeAttribute("style");
-            }
-            sprite.style.border = "3px solid rgb(242 44 255)";
-            console.log("SELECTED_TILE_INDEX = " + sprite.getAttribute('title'));
-            SELECTED_TILE_INDEX = parseInt(sprite.getAttribute('title'));
-          });
-          div.appendChild(sprite);
-          i++;
-        }
-        document.body.appendChild(div);
       }
       resolve(imgs);
     })

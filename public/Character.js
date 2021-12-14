@@ -47,6 +47,7 @@ export default class Character {
   collision(transforms, viewport, top, bottom, left, right) {
     transforms.forEach((transform) => {
       if (this.collisionsEnabled && !transform.passable && doBoxesIntersect(this, transform, viewport)) {
+        transform.colliding = true;
         const platXPlusViewport = transform.pos.x + viewport.x;
         const xTest = (this.pos.x + (this.w / 2)) - (platXPlusViewport + (transform.w / 2));
 

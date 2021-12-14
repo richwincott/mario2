@@ -10,20 +10,25 @@ export default class Tile {
     this.collisionActions = collisionActions;
     this.img = img;
     this.colliding = false;
+    this.collidingCounter = 0;
   }
 
   show(viewport, debug) {
-    if (this.colliding && debug) {
+    if (this.colliding) this.collidingCounter++;
+    if (this.collidingCounter > 10 && !debug) {
+      this.collidingCounter = 0;
       this.colliding = false;
-      ctx.fillRect(
+    }
+    ctx.drawImage(this.img, this.pos.x + viewport.x, this.pos.y, this.w, this.h);
+    if (this.colliding && debug) {
+      ctx.strokeStyle = "#F00";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(
         this.pos.x + viewport.x, //this.h > 50 ? this.pos.x : this.pos.x + 20,
         this.pos.y,
-        this.w, //this.h > 50 ? this.w : this.w - 40,
+        this.w - 1, //this.h > 50 ? this.w : this.w - 40,
         this.h
       );
-    }
-    else {
-      ctx.drawImage(this.img, this.pos.x + viewport.x, this.pos.y, this.w, this.h);
     }
   }
 }

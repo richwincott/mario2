@@ -33,15 +33,37 @@ function preload(callback) {
       Promise.all([
         processSpriteBoard(marioSheet, 40, 40, 11, 9, 0, 0),
         processSpriteBoard(enemiesSheet, 40, 40, 11, 9, 0, 0),
-        processSpriteBoard(bgSheet, 16, 16, 17, 16, 0, 0, true),
+        processSpriteBoard(bgSheet, 16, 16, 16, 16, 0, 0, true),
         processSpriteBoard(miscSheet, 23, 22, 1, 16, 30, 429, true),
         processImage(bg),
         processLevel(level1)])
-        .then(([mImgs, eImgs, bgs, ms, bg, level1]) => callback(mImgs, eImgs, bgs, ms, bg, level1));
+        .then(([mImgs, eImgs, bgs, ms, bg, level1]) => {
+          const tiles = [...bgs, ...ms];
+          const div = document.createElement("div");
+          div.className = "sprites";
+          let i = 0;
+          for (let sprite of tiles) {
+            sprite.setAttribute('title', i);
+            sprite.className = "sprite";
+            sprite.addEventListener('click', () => {
+              for (let i = 0; i < document.getElementsByClassName("sprite").length; i++) {
+                const element = document.getElementsByClassName("sprite")[i];
+                element.removeAttribute("style");
+              }
+              sprite.style.border = "3px solid rgb(242 44 255)";
+              console.log("SELECTED_TILE_INDEX = " + sprite.getAttribute('title'));
+              SELECTED_TILE_INDEX = parseInt(sprite.getAttribute('title'));
+            });
+            div.appendChild(sprite);
+            i++;
+          }
+          document.body.appendChild(div);
+          callback(mImgs, eImgs, tiles, bg, level1)
+        });
     })
 }
 
-function setup([mImgs, eImgs, bgs, ms, bg, level1], callback) {
+function setup([mImgs, eImgs, bgs, bg, level1], callback) {
   canvas = document.getElementById("canvas");
   canvas.width = 800;
   canvas.height = 447;
@@ -65,6 +87,7 @@ function setup([mImgs, eImgs, bgs, ms, bg, level1], callback) {
   for (let i = 0; i < level.length; i++) {
     for (let j = 0; j < level[i].length; j++) {
       if (level[i][j]) {
+        const dim = { x: bgImgs[level[i][j]].width, y: bgImgs[level[i][j]].height };
         if (level[i][j] == 7) {
           const collectCoin = (other, overlap, character) => {
             if (character instanceof Mario) {
@@ -72,12 +95,12 @@ function setup([mImgs, eImgs, bgs, ms, bg, level1], callback) {
               player.score += 20;
             }
           }
-          tiles.push(new Tile(j * 16, i * 16, 17, 17, false, bgImgs[level[i][j]], {
+          tiles.push(new Tile(j * dim.x, i * dim.y, dim.x + 1, dim.y, false, bgImgs[level[i][j]], {
             top: collectCoin, bottom: collectCoin, left: collectCoin, right: collectCoin
           }));
         }
         else {
-          tiles.push(new Tile(j * 16, i * 16, 17, 17, passableTiles.includes(level[i][j]), bgImgs[level[i][j]]));
+          tiles.push(new Tile(j * 16, i * 16, dim.x + 1, dim.y, passableTiles.includes(level[i][j]), bgImgs[level[i][j]]));
         }
       }
     }
@@ -120,7 +143,7 @@ function draw() {
         if (!level[i][j]) {
           ctx.strokeStyle = "#ccc";
           ctx.lineWidth = 0.5;
-          ctx.strokeRect((j * 16) + viewport.x, i * 16, 17, 17);
+          ctx.strokeRect((j * 16) + viewport.x, i * 16, 17, 16);
         }
       }
     }
@@ -187,8 +210,8 @@ function mouseClick(ev) {
             let existing = tiles.filter((tile) => tile.pos.x == j * 16 && tile.pos.y == i * 16)[0];
             //console.log("existing", existing)
             if (level[i][j]) {
-              if (existing) tiles[tiles.indexOf(existing)] = new Tile(j * 16, i * 16, 17, 17, passableTiles.includes(level[i][j]), bgImgs[level[i][j]]);
-              else tiles.push(new Tile(j * 16, i * 16, 17, 17, passableTiles.includes(level[i][j]), bgImgs[level[i][j]]));
+              if (existing) tiles[tiles.indexOf(existing)] = new Tile(j * 16, i * 16, 17, 16, passableTiles.includes(level[i][j]), bgImgs[level[i][j]]);
+              else tiles.push(new Tile(j * 16, i * 16, 17, 16, passableTiles.includes(level[i][j]), bgImgs[level[i][j]]));
             }
             else {
               if (existing) tiles.splice(tiles.indexOf(existing), 1);
@@ -221,10 +244,10 @@ window.SELECTED_TILE_INDEX = null;
 function toggleEnemySpawning(event) {
   ENEMY_SPAWNING = !ENEMY_SPAWNING;
   if (ENEMY_SPAWNING) {
-    event.target.innerText = "Disable enemy spawning";
+    event.target.innerText = "Disable enemy auto spawning";
   }
   if (!ENEMY_SPAWNING) {
-    event.target.innerText = "Enable enemy spawning";
+    event.target.innerText = "Enable enemy auto spawning";
   }
 }
 
