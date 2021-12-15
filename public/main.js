@@ -16,11 +16,22 @@ let debug = false;
 let koopaImages;
 let level;
 let passableTiles = [125, 126, 127, 70, 16, 17, 18, 7, 22, 23, 93, 94, 95, 141, 142, 143, 77, 78, 79, 109, 110, 111, 3, 260];
+let idleCounter = 0;
 
 window.GRAVITY = 20;
 window.MOVE_SPEED = 140;
 window.JUMP_HEIGHT = 400;
 window.LEVEL_NAME = "1";
+window.PAUSED = false;
+
+setInterval(() => {
+  idleCounter++
+  if (idleCounter > 59) PAUSED = true;
+  else if (idleCounter == 1 && PAUSED) {
+    PAUSED = false;
+    TIME.start();
+  }
+}, 1000);
 
 function preload(callback) {
   Promise.all([
@@ -206,6 +217,7 @@ function keyPressed(ev) {
 }
 
 function keyReleased(ev) {
+  idleCounter = 0;
   if (ev.key == 'd' || ev.key == 'a') {
     player.vel.x = 0;
   }
@@ -218,6 +230,10 @@ function keyReleased(ev) {
 }
 
 function mouseClick(ev) {
+  if (PAUSED) {
+    idleCounter = 0;
+    return;
+  }
   if (editMode) {
     const mouseX = ev.offsetX - viewport.x;
     const mouseY = ev.offsetY;

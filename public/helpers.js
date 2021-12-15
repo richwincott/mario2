@@ -27,6 +27,7 @@ class Time {
 
   start() {
     const loop = (time) => {
+      if (PAUSED) return;
       if (this.previous) {
         this.func((time - this.previous) / 1000);
       }
