@@ -16,22 +16,22 @@ let debug = false;
 let koopaImages;
 let level;
 let passableTiles = [125, 126, 127, 70, 16, 17, 18, 7, 22, 23, 93, 94, 95, 141, 142, 143, 77, 78, 79, 109, 110, 111, 3, 260];
-let idleCounter = 0;
+//let idleCounter = 0;
 
 window.GRAVITY = 20;
 window.MOVE_SPEED = 140;
 window.JUMP_HEIGHT = 400;
 window.LEVEL_NAME = "1";
-window.PAUSED = false;
+//window.PAUSED = false;
 
-setInterval(() => {
+/* setInterval(() => {
   idleCounter++
   if (idleCounter > 59) PAUSED = true;
   else if (idleCounter == 1 && PAUSED) {
     PAUSED = false;
     TIME.start();
   }
-}, 1000);
+}, 1000); */
 
 function preload(callback) {
   Promise.all([
@@ -99,40 +99,7 @@ function setup([mImgs, eImgs, bgs, bg, level1], callback) {
   for (let i = 0; i < level.length; i++) {
     for (let j = 0; j < level[i].length; j++) {
       if (level[i][j]) {
-        if (level[i][j] == 2) {
-          const increaseHealth = (other, overlap, character) => {
-            if (character instanceof Mario) {
-              others.splice(others.indexOf(other), 1);
-              player.health++;
-            }
-          }
-          const spawnMushroom = (other, overlap, character) => {
-            if (character instanceof Mario) {
-              character.pos.y += Math.abs(overlap.y);
-              character.vel.y = constrain(character.vel.y, 0, 9999);
-              others.push(new Mushroom(j, i - 2, { run: [bgImgs[260]] }, -1, {
-                top: increaseHealth, bottom: increaseHealth, left: increaseHealth, right: increaseHealth
-              }));
-            }
-          }
-          tiles.push(new Tile(j, i, false, bgImgs[level[i][j]], {
-            top: spawnMushroom, bottom: null, left: null, right: null
-          }));
-        }
-        else if (level[i][j] == 7) {
-          const collectCoin = (other, overlap, character) => {
-            if (character instanceof Mario) {
-              tiles.splice(tiles.indexOf(other), 1);
-              player.score += 20;
-            }
-          }
-          tiles.push(new Tile(j, i, false, bgImgs[level[i][j]], {
-            top: collectCoin, bottom: collectCoin, left: collectCoin, right: collectCoin
-          }));
-        }
-        else {
-          tiles.push(new Tile(j, i, passableTiles.includes(level[i][j]), bgImgs[level[i][j]]));
-        }
+        spawnTile(level, i, j);
       }
     }
   }
@@ -141,6 +108,66 @@ function setup([mImgs, eImgs, bgs, bg, level1], callback) {
       others.push(new Koopa(canvas.width - viewport.x, 30, koopaImages, -1));
   }, 1000);
   callback();
+}
+
+function spawnTile(level, i, j) {
+  let existing = tiles.filter((tile) => {
+    const middle = { x: tile.pos.x + (tile.w / 2), y: tile.pos.y + (tile.h / 2) };
+    return middle.x > j * 16 && middle.x < (j * 16) + 16
+      && middle.y > i * 16 && middle.y < (i * 16) + 16
+  })[0];
+  //console.log("existing", existing)
+  if (level[i][j]) {
+    if (level[i][j] == 2) {
+      const increaseHealth = (other, overlap, character) => {
+        if (character instanceof Mario) {
+          others.splice(others.indexOf(other), 1);
+          player.health++;
+        }
+      }
+      const spawnMushroom = (other, overlap, character) => {
+        if (character instanceof Mario) {
+          character.pos.y += Math.abs(overlap.y);
+          character.vel.y = constrain(character.vel.y, 0, 9999);
+          others.push(new Mushroom(j, i - 2, { run: [bgImgs[260]] }, -1, {
+            top: increaseHealth, bottom: increaseHealth, left: increaseHealth, right: increaseHealth
+          }));
+        }
+      }
+      tiles.push(new Tile(j, i, false, bgImgs[level[i][j]], {
+        top: spawnMushroom, bottom: null, left: null, right: null
+      }));
+    }
+    else if (level[i][j] == 7) {
+      const collectCoin = (other, overlap, character) => {
+        if (character instanceof Mario) {
+          tiles.splice(tiles.indexOf(other), 1);
+          player.score += 20;
+        }
+      }
+      tiles.push(new Tile(j, i, false, bgImgs[level[i][j]], {
+        top: collectCoin, bottom: collectCoin, left: collectCoin, right: collectCoin
+      }));
+    }
+    else if (level[i][j] == 266) {
+      const bounce = (other, overlap, character) => {
+        character.airBourne = false;
+        character.pos.y -= Math.abs(overlap.y);
+        character.vel.y = constrain(character.vel.y, -9999, 0);
+        character.jump(JUMP_HEIGHT * 2);
+      }
+      tiles.push(new Tile(j, i, false, bgImgs[level[i][j]], {
+        top: null, bottom: bounce, left: null, right: null
+      }));
+    }
+    else {
+      if (existing) tiles[tiles.indexOf(existing)] = new Tile(j, i, passableTiles.includes(level[i][j]), bgImgs[level[i][j]]);
+      else tiles.push(new Tile(j, i, passableTiles.includes(level[i][j]), bgImgs[level[i][j]]));
+    }
+  }
+  else {
+    if (existing) tiles.splice(tiles.indexOf(existing), 1);
+  }
 }
 
 function update(deltaTime) {
@@ -182,7 +209,7 @@ function draw() {
   for (let tile of tiles) {
     tile.show(viewport, debug);
   }
-  player.show(Math.floor((Math.floor(TIME.previous) % 300) / 100));
+  player.show(Math.floor((Math.floor(TIME.previous) % 300) / 100), debug);
   for (let other of others) {
     other.show(Math.floor((Math.floor(TIME.previous) % 200) / 100), viewport);
   }
@@ -217,7 +244,7 @@ function keyPressed(ev) {
 }
 
 function keyReleased(ev) {
-  idleCounter = 0;
+  //idleCounter = 0;
   if (ev.key == 'd' || ev.key == 'a') {
     player.vel.x = 0;
   }
@@ -230,10 +257,10 @@ function keyReleased(ev) {
 }
 
 function mouseClick(ev) {
-  if (PAUSED) {
+  /* if (PAUSED) {
     idleCounter = 0;
     return;
-  }
+  } */
   if (editMode) {
     const mouseX = ev.offsetX - viewport.x;
     const mouseY = ev.offsetY;
@@ -243,19 +270,7 @@ function mouseClick(ev) {
           if (mouseY > i * 16 && mouseY < (i * 16) + 16) {
             //console.log({ currentValue: level[i][j], newValue: SELECTED_TILE_INDEX })
             level[i][j] = SELECTED_TILE_INDEX;
-            let existing = tiles.filter((tile) => {
-              const middle = { x: tile.pos.x + (tile.w / 2), y: tile.pos.y + (tile.h / 2) };
-              return middle.x > j * 16 && middle.x < (j * 16) + 16
-                && middle.y > i * 16 && middle.y < (i * 16) + 16
-            })[0];
-            //console.log("existing", existing)
-            if (level[i][j]) {
-              if (existing) tiles[tiles.indexOf(existing)] = new Tile(j, i, passableTiles.includes(level[i][j]), bgImgs[level[i][j]]);
-              else tiles.push(new Tile(j, i, passableTiles.includes(level[i][j]), bgImgs[level[i][j]]));
-            }
-            else {
-              if (existing) tiles.splice(tiles.indexOf(existing), 1);
-            }
+            spawnTile(level, i, j);
           }
         }
       }
