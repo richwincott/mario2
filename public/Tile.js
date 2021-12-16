@@ -6,6 +6,8 @@ export default class Tile {
     const gs = 16;
     const x = ((j * gs) + (gs / 2)) - dim.x / 2;
     const y = ((i * gs) + (gs / 2)) - dim.y / 2;
+    this.j = j;
+    this.i = i;
     this.pos = new Vector(x, y);
     this.vel = new Vector(0, 0);
     this.w = dim.x + 1;

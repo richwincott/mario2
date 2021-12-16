@@ -119,6 +119,15 @@ function flipImg(img) {
   return flippedImg;
 }
 
+function pixelValueToGridPosition(level, x, y) {
+  for (let i = 0; i < level.length; i++) {
+    for (let j = 0; j < level[i].length; j++) {
+      if (x > j * 16 && x < (j * 16) + 16 && y > i * 16 && y < (i * 16) + 16) return { x: j, y: i };
+    }
+  }
+  return { x: null, y: null };
+}
+
 export {
   Vector,
   Time,
@@ -129,5 +138,6 @@ export {
   processImage,
   processSpriteBoard,
   doBoxesIntersect,
-  flipImg
+  flipImg,
+  pixelValueToGridPosition
 }

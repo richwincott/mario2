@@ -1,7 +1,7 @@
 import Tile from './Tile.js';
 import Mario from './Mario.js';
 import Koopa from './Koopa.js';
-import { Time, text, constrain, Vector, processLevel, processImage, processSpriteBoard } from './helpers.js';
+import { Time, text, constrain, Vector, processLevel, processImage, processSpriteBoard, pixelValueToGridPosition } from './helpers.js';
 import Mushroom from './Mushroom.js';
 
 let canvas;
@@ -16,6 +16,7 @@ let debug = false;
 let koopaImages;
 let level;
 let passableTiles = [125, 126, 127, 70, 16, 17, 18, 7, 22, 23, 93, 94, 95, 141, 142, 143, 77, 78, 79, 109, 110, 111, 3, 260];
+let movableTiles = [267, 262]; //266 remove as handle specifically
 //let idleCounter = 0;
 
 window.GRAVITY = 20;
@@ -114,10 +115,24 @@ function spawnTile(level, i, j) {
   let existing = tiles.filter((tile) => {
     const middle = { x: tile.pos.x + (tile.w / 2), y: tile.pos.y + (tile.h / 2) };
     return middle.x > j * 16 && middle.x < (j * 16) + 16
-      && middle.y > i * 16 && middle.y < (i * 16) + 16
+      && middle.y > i * 16 && middle.y < (i * 16) + 16;
   })[0];
   //console.log("existing", existing)
   if (level[i][j]) {
+    const pickupTileLeft = (other, overlap, character) => {
+      character.pos.x += Math.abs(overlap.x);
+      if (character.hold && character.holding == null) {
+        character.holding = other;
+        tiles.splice(tiles.indexOf(other), 1);
+      }
+    }
+    const pickupTileRight = (other, overlap, character) => {
+      character.pos.x -= Math.abs(overlap.x);
+      if (character.hold && character.holding == null) {
+        character.holding = other;
+        tiles.splice(tiles.indexOf(other), 1);
+      }
+    }
     if (level[i][j] == 2) {
       const increaseHealth = (other, overlap, character) => {
         if (character instanceof Mario) {
@@ -152,12 +167,10 @@ function spawnTile(level, i, j) {
     else if (level[i][j] == 266) {
       const bounce = (other, overlap, character) => {
         character.airBourne = false;
-        character.pos.y -= Math.abs(overlap.y);
-        character.vel.y = constrain(character.vel.y, -9999, 0);
         character.jump(JUMP_HEIGHT * 2);
       }
       tiles.push(new Tile(j, i, false, bgImgs[level[i][j]], {
-        top: null, bottom: bounce, left: null, right: null
+        top: null, bottom: bounce, left: pickupTileLeft, right: pickupTileRight
       }));
     }
     else if (level[i][j] == 14 || level[i][j] == 15) {
@@ -173,6 +186,11 @@ function spawnTile(level, i, j) {
       }
       tiles.push(new Tile(j, i, false, bgImgs[level[i][j]], {
         top: null, bottom: pipe, left: null, right: null
+      }));
+    }
+    else if (movableTiles.includes(level[i][j])) {
+      tiles.push(new Tile(j, i, false, bgImgs[level[i][j]], {
+        top: null, bottom: null, left: pickupTileLeft, right: pickupTileRight
       }));
     }
     else {
@@ -202,6 +220,16 @@ function update(deltaTime) {
   }
   else {
     viewportV.x = 0;
+  }
+
+  if (player.holding != null && player.hold == false) {
+    const pos = pixelValueToGridPosition(level, player.pos.x - viewport.x, player.pos.y + (player.h / 2));
+    let temp_level = JSON.parse(JSON.stringify(level));
+    const x = player.dir > 0 ? pos.x : pos.x + 1;
+    const y = pos.y;
+    temp_level[y][x] = parseInt(player.holding.img.getAttribute('title'));
+    spawnTile(temp_level, y, x);
+    player.holding = null;
   }
 }
 
@@ -253,6 +281,9 @@ function keyPressed(ev) {
   if (ev.key == 's') {
     player.setCrouch(true);
   }
+  if (ev.key == 'e') {
+    player.setHolding(true);
+  }
   if (ev.key == 'k') {
     debug = true;
   }
@@ -265,6 +296,9 @@ function keyReleased(ev) {
   }
   if (ev.key == 's') {
     player.setCrouch(false);
+  }
+  if (ev.key == 'e') {
+    player.setHolding(false);
   }
   if (ev.key == 'k') {
     debug = false;

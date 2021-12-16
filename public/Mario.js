@@ -5,12 +5,18 @@ export default class Mario extends Character {
   constructor(x, y, images) {
     super(x, y, images);
     this.crouch = false;
+    this.hold = false;
+    this.holding = null;
     this.images.crouchFlipped = flipImg(images.crouch);
     this.images.jumpFlipped = images.jump.map((img) => flipImg(img))
   }
 
   setCrouch(value) {
     this.crouch = value;
+  }
+
+  setHolding(value) {
+    this.hold = value;
   }
 
   show(index, debug) {
@@ -30,6 +36,9 @@ export default class Mario extends Character {
       img = this.images.dead;
     }
     ctx.drawImage(img, (this.pos.x - 10), this.pos.y - yOffset, img.width, img.height);
+    if (this.holding) {
+      ctx.drawImage(this.holding.img, this.dir > 0 ? (this.pos.x - 15) : (this.pos.x + 10), this.pos.y + 10, this.holding.img.width, this.holding.img.height);
+    }
     if (debug) {
       ctx.strokeStyle = "#F00";
       ctx.lineWidth = 1;

@@ -29,6 +29,7 @@ export default class Character {
 
   update(viewport) {
     this.vel.y += this.crouch ? GRAVITY * 3 : GRAVITY;
+    this.vel.y = constrain(this.vel.y, -9999, 690);
     this.pos.add(this.vel);
     if (this instanceof Mario)
       this.pos.x = constrain(this.pos.x, this.pos.x > (canvas.width / 4) - (this.w + 1) && viewport.x < 0 ? (canvas.width / 4) : 0, (canvas.width / 2) - this.w);
