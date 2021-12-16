@@ -160,6 +160,21 @@ function spawnTile(level, i, j) {
         top: null, bottom: bounce, left: null, right: null
       }));
     }
+    else if (level[i][j] == 14 || level[i][j] == 15) {
+      const pipe = (other, overlap, character) => {
+        character.airBourne = false;
+        character.pos.y -= Math.abs(overlap.y);
+        character.vel.y = constrain(character.vel.y, -9999, 0);
+        if (character.crouch) {
+          character.pos.x = canvas.width / 4;
+          character.crouch = false;
+          viewport.x = -1295;
+        }
+      }
+      tiles.push(new Tile(j, i, false, bgImgs[level[i][j]], {
+        top: null, bottom: pipe, left: null, right: null
+      }));
+    }
     else {
       if (existing) tiles[tiles.indexOf(existing)] = new Tile(j, i, passableTiles.includes(level[i][j]), bgImgs[level[i][j]]);
       else tiles.push(new Tile(j, i, passableTiles.includes(level[i][j]), bgImgs[level[i][j]]));
