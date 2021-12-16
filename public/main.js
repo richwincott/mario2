@@ -281,9 +281,6 @@ function keyPressed(ev) {
   if (ev.key == 's') {
     player.setCrouch(true);
   }
-  if (ev.key == 'e') {
-    player.setHolding(true);
-  }
   if (ev.key == 'k') {
     debug = true;
   }
@@ -298,7 +295,8 @@ function keyReleased(ev) {
     player.setCrouch(false);
   }
   if (ev.key == 'e') {
-    player.setHolding(false);
+    if (player.hold) player.setHolding(false);
+    else player.setHolding(true);
   }
   if (ev.key == 'k') {
     debug = false;
