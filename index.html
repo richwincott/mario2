@@ -34,6 +34,37 @@
       display: none;
     }
   </style>
+  <script>
+    // define a new console
+    var console2 = (function (oldCons) {
+      return {
+        log: function (text) {
+          oldCons.log(text);
+          // Your code
+          alert("Log: " + text);
+        },
+        info: function (text) {
+          oldCons.info(text);
+          // Your code
+          alert("Info: " + text);
+        },
+        warn: function (text) {
+          oldCons.warn(text);
+          // Your code
+          alert("Warn: " + text);
+        },
+        error: function (text) {
+          oldCons.error(text);
+          // Your code
+          alert("Error: " + text);
+        }
+      };
+    }(window.console));
+
+    //Then redefine the old console
+    if (location.href.includes('console=1'))
+      window.console = console2;
+  </script>
 </head>
 
 <body>
