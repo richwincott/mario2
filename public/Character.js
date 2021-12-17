@@ -101,6 +101,8 @@ export default class Character {
           this.airBourne = false;
           this.pos.y -= Math.abs(overlap.y);
           this.vel.y = constrain(this.vel.y, -9999, 0);
+          if (this.fireBall)
+            this.jump(JUMP_HEIGHT / 2);
         }
       },
       (other, overlap) => {

@@ -6,13 +6,19 @@ export default class Mario extends Character {
     super(x, y, images);
     this.crouch = false;
     this.hold = false;
+    this.action = false;
     this.holding = null;
+    this.powerups = [];
     this.images.crouchFlipped = flipImg(images.crouch);
     this.images.jumpFlipped = images.jump.map((img) => flipImg(img))
   }
 
   setCrouch(value) {
     this.crouch = value;
+  }
+
+  triggerAction(value) {
+    this.action = value;
   }
 
   setHolding(value) {
@@ -38,6 +44,16 @@ export default class Mario extends Character {
     ctx.drawImage(img, (this.pos.x - 10), this.pos.y - yOffset, img.width, img.height);
     if (this.holding) {
       ctx.drawImage(this.holding.img, this.dir > 0 ? (this.pos.x - 15) : (this.pos.x + 10), this.pos.y + 10, this.holding.img.width, this.holding.img.height);
+    }
+    if (this.powerups.includes("FireBalls")) {
+      ctx.strokeStyle = "#FF0";
+      ctx.lineWidth = 10;
+      ctx.strokeRect(
+        this.pos.x, //this.h > 50 ? this.pos.x : this.pos.x + 20,
+        this.pos.y,
+        this.w, //this.h > 50 ? this.w : this.w - 40,
+        this.h
+      );
     }
     if (debug) {
       ctx.strokeStyle = "#F00";

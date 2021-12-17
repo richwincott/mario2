@@ -1,6 +1,6 @@
 import Character from './Character.js';
 
-export default class Mushroom extends Character {
+export default class Pickup extends Character {
   constructor(j, i, images, dir, collisionActions) {
     const dim = { x: images.run[0].width, y: images.run[0].height };
     const gs = 16;
@@ -8,7 +8,6 @@ export default class Mushroom extends Character {
     const y = ((i * gs) + (gs / 2)) - dim.y / 2;
     super(x, y, images, collisionActions);
     this.dir = dir;
-    this.originalJump = this.jump;
     setTimeout((jump) => {
       this.dir = Math.random() < 0.5 ? -1 : 1;
       this.move((MOVE_SPEED / 2) * this.dir, 0);

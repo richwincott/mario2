@@ -2,7 +2,8 @@ import Tile from './Tile.js';
 import Mario from './Mario.js';
 import Koopa from './Koopa.js';
 import { Time, text, constrain, Vector, processLevel, processImage, processSpriteBoard, pixelValueToGridPosition } from './helpers.js';
-import Mushroom from './Mushroom.js';
+import Pickup from './Pickup.js';
+import FireBall from './FireBall.js';
 
 let canvas;
 let player;
@@ -140,17 +141,25 @@ function spawnTile(level, i, j) {
           player.health++;
         }
       }
-      const spawnMushroom = (other, overlap, character) => {
+      const collectFireBalls = (other, overlap, character) => {
         if (character instanceof Mario) {
+          others.splice(others.indexOf(other), 1);
+          player.powerups.push("FireBalls");
+        }
+      }
+      const spawnItem = (other, overlap, character) => {
+        if (character instanceof Mario) {
+          const randomNo = Math.random() < 0.5;
+          const collectAction = randomNo < 0.5 ? increaseHealth : collectFireBalls;
           character.pos.y += Math.abs(overlap.y);
           character.vel.y = constrain(character.vel.y, 0, 9999);
-          others.push(new Mushroom(j, i - 2, { run: [bgImgs[260]] }, -1, {
-            top: increaseHealth, bottom: increaseHealth, left: increaseHealth, right: increaseHealth
+          others.push(new Pickup(j, i - 2, { run: [bgImgs[randomNo < 0.5 ? 260 : 256]] }, -1, {
+            top: collectAction, bottom: collectAction, left: collectAction, right: collectAction
           }));
         }
       }
       tiles.push(new Tile(j, i, false, bgImgs[level[i][j]], {
-        top: spawnMushroom, bottom: null, left: null, right: null
+        top: spawnItem, bottom: null, left: null, right: null
       }));
     }
     else if (level[i][j] == 7) {
@@ -208,7 +217,10 @@ function update(deltaTime) {
   player.tileCollisions(tiles, viewport);
   player.otherCollisions(others, viewport);
   for (let other of others) {
+    if (other.alive == false) others.splice(others.indexOf(other), 1);
     other.update();
+    if (other.additionalUpdate)
+      other.additionalUpdate();
     other.tileCollisions(tiles, { x: 0 });
   }
   viewport.add(viewportV);
@@ -230,6 +242,15 @@ function update(deltaTime) {
     temp_level[y][x] = parseInt(player.holding.img.getAttribute('title'));
     spawnTile(temp_level, y, x);
     player.holding = null;
+  }
+
+  if (player.action && player.powerups.includes("FireBalls")) {
+    const pos = pixelValueToGridPosition(level, player.pos.x - viewport.x, player.pos.y);
+    const x = player.dir > 0 ? pos.x - 1 : pos.x + 2;
+    const y = pos.y;
+    others.push(new FireBall(x, y, { run: [bgImgs[0]] }, -player.dir, {
+      top: () => null, bottom: () => null, left: () => null, right: () => null
+    }));
   }
 }
 
@@ -281,13 +302,15 @@ function keyPressed(ev) {
   if (ev.key == 's' || ev.key == 'ArrowDown') {
     player.setCrouch(true);
   }
+  if (ev.key == 'e') {
+    player.triggerAction(true);
+  }
   if (ev.key == 'k') {
     debug = true;
   }
 }
 
 function keyReleased(ev) {
-  console.log(ev)
   //idleCounter = 0;
   if (ev.key == 'd' || ev.key == 'a' || ev.key == 'ArrowLeft' || ev.key == 'ArrowRight') {
     player.vel.x = 0;
@@ -296,6 +319,7 @@ function keyReleased(ev) {
     player.setCrouch(false);
   }
   if (ev.key == 'e') {
+    player.triggerAction(false);
     if (player.hold) player.setHolding(false);
     else player.setHolding(true);
   }
