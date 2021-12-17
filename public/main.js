@@ -269,16 +269,16 @@ preload((...assets) => {
 })
 
 function keyPressed(ev) {
-  if (ev.key == 'w' || ev.key == ' ') {
+  if (ev.key == 'w' || ev.key == ' ' || ev.key == 'ArrowUp') {
     player.jump();
   }
-  if (ev.key == 'd') {
+  if (ev.key == 'd' || ev.key == 'ArrowRight') {
     player.move(MOVE_SPEED, 0);
   }
-  if (ev.key == 'a') {
+  if (ev.key == 'a' || ev.key == 'ArrowLeft') {
     player.move(-MOVE_SPEED, 0);
   }
-  if (ev.key == 's') {
+  if (ev.key == 's' || ev.key == 'ArrowDown') {
     player.setCrouch(true);
   }
   if (ev.key == 'k') {
@@ -287,11 +287,12 @@ function keyPressed(ev) {
 }
 
 function keyReleased(ev) {
+  console.log(ev)
   //idleCounter = 0;
-  if (ev.key == 'd' || ev.key == 'a') {
+  if (ev.key == 'd' || ev.key == 'a' || ev.key == 'ArrowLeft' || ev.key == 'ArrowRight') {
     player.vel.x = 0;
   }
-  if (ev.key == 's') {
+  if (ev.key == 's' || ev.key == 'ArrowDown') {
     player.setCrouch(false);
   }
   if (ev.key == 'e') {
