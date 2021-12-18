@@ -45,10 +45,10 @@ function preload(callback) {
     fetch(`levels/${LEVEL_NAME}.json`)])
     .then(([marioSheet, enemiesSheet, bgSheet, miscSheet, bg, level1]) => {
       Promise.all([
-        processSpriteBoard(marioSheet, 40, 40, 11, 9, 0, 0),
+        processSpriteBoard(marioSheet, 40, 40, 22, 9, 0, 0),
         processSpriteBoard(enemiesSheet, 40, 40, 11, 9, 0, 0),
-        processSpriteBoard(bgSheet, 16, 16, 16, 16, 0, 0, true),
-        processSpriteBoard(miscSheet, 23, 22, 1, 16, 30, 429, true),
+        processSpriteBoard(bgSheet, 16, 16, 16, 16, 0, 0),
+        processSpriteBoard(miscSheet, 23, 22, 1, 19, 30, 429),
         processImage(bg),
         processLevel(level1)])
         .then(([mImgs, eImgs, bgs, ms, bg, level1]) => {
@@ -94,7 +94,13 @@ function setup([mImgs, eImgs, bgs, bg, level1], callback) {
     jump: [mImgs[31], mImgs[30]],
     dead: mImgs[9]
   }
-  player = new Mario(20, 30, playerImages);
+  const playerImagesFire = {
+    run: [mImgs[103], mImgs[100], mImgs[99]],
+    crouch: mImgs[110],
+    jump: [mImgs[112], mImgs[111]],
+    dead: mImgs[9]
+  }
+  player = new Mario(20, 30, playerImages, playerImagesFire);
   koopaImages = {
     run: [eImgs[3], eImgs[2]],
   }
@@ -244,11 +250,11 @@ function update(deltaTime) {
     player.holding = null;
   }
 
-  if (player.action && player.powerups.includes("FireBalls")) {
+  if (player.action && player.powerups.includes("FireBalls") && (Math.floor((Math.floor(TIME.previous) % 40) / 10) == 1)) {
     const pos = pixelValueToGridPosition(level, player.pos.x - viewport.x, player.pos.y);
     const x = player.dir > 0 ? pos.x - 1 : pos.x + 2;
     const y = pos.y;
-    others.push(new FireBall(x, y, { run: [bgImgs[0]] }, -player.dir, {
+    others.push(new FireBall(x, y, { run: [bgImgs[272], bgImgs[273], bgImgs[274]] }, -player.dir, {
       top: () => null, bottom: () => null, left: () => null, right: () => null
     }));
   }
@@ -277,7 +283,7 @@ function draw() {
   for (let other of others) {
     other.show(Math.floor((Math.floor(TIME.previous) % 200) / 100), viewport);
   }
-  text("Health: " + player.health + "       Score: " + player.score, 10, 20);
+  text("Health: " + player.health + "       Score: " + player.score + "       Time: " + TIME.time, 10, 20);
 }
 
 preload((...assets) => {

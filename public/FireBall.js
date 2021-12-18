@@ -35,11 +35,7 @@ export default class FireBall extends Character {
   }
 
   show(index, viewport) {
-    /* let img = this.images.run[0];
-    ctx.drawImage(img, this.pos.x + viewport.x, this.pos.y + 12, img.width, img.height); */
-    ctx.strokeStyle = "#F0F";
-    ctx.beginPath();
-    ctx.arc(this.pos.x + viewport.x, this.pos.y + 20, 2, 0, 2 * Math.PI);
-    ctx.stroke();
+    let img = this.images.run[index];
+    ctx.drawImage(img, this.pos.x + viewport.x, this.pos.y + 12, img.width, img.height);
   }
 }

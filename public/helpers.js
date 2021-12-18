@@ -22,7 +22,12 @@ class Time {
     this.accumulator = 0;
     this.step = 1 / 60;
     this.func = func;
+    this.time = 0
     this.start();
+
+    setInterval(() => {
+      this.time++;
+    }, 1000);
   }
 
   start() {
