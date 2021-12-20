@@ -108,6 +108,20 @@ function processSpriteBoard(spriteImage, w, h, r, c, offsetX, offsetY) {
   })
 }
 
+function loadAssets(assets) {
+  return new Promise((resolve, reject) => {
+    Promise.all(assets.map(([url]) => fetch(url))).then((data) => {
+      Promise.all(assets.map(([url, processingFnc, tileSizeX, tileSizeY, rows, cols, offsetX, offsetY], index) => {
+        return processingFnc(data[index], tileSizeX, tileSizeY, rows, cols, offsetX, offsetY)
+      })).then(([mImgs, eImgs, bgs, ms, bg, level1]) => {
+        const tiles = [...bgs, ...ms];
+        addTilesToPage(tiles);
+        resolve([mImgs, eImgs, tiles, bg, level1])
+      })
+    })
+  })
+}
+
 function doBoxesIntersect(a, b, viewport) {
   return (Math.abs((a.pos.x + (a.w / 2)) - ((b.pos.x + viewport.x) + (b.w / 2))) * 2 <= (a.w + b.w)) &&
     (Math.abs((a.pos.y + (a.h / 2)) - (b.pos.y + (b.h / 2))) * 2 <= (a.h + b.h));
@@ -133,6 +147,28 @@ function pixelValueToGridPosition(level, x, y) {
   return { x: null, y: null };
 }
 
+function addTilesToPage(tiles) {
+  const div = document.createElement("div");
+  div.className = "sprites";
+  let i = 0;
+  for (let sprite of tiles) {
+    sprite.setAttribute('title', i);
+    sprite.className = "sprite";
+    sprite.addEventListener('click', () => {
+      for (let i = 0; i < document.getElementsByClassName("sprite").length; i++) {
+        const element = document.getElementsByClassName("sprite")[i];
+        element.removeAttribute("style");
+      }
+      sprite.style.border = "3px solid rgb(242 44 255)";
+      console.log("SELECTED_TILE_INDEX = " + sprite.getAttribute('title'));
+      SELECTED_TILE_INDEX = parseInt(sprite.getAttribute('title'));
+    });
+    div.appendChild(sprite);
+    i++;
+  }
+  document.body.appendChild(div);
+}
+
 export {
   Vector,
   Time,
@@ -144,5 +180,6 @@ export {
   processSpriteBoard,
   doBoxesIntersect,
   flipImg,
-  pixelValueToGridPosition
+  pixelValueToGridPosition,
+  loadAssets
 }

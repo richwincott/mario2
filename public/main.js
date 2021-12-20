@@ -1,7 +1,7 @@
 import Tile from './Tile.js';
 import Mario from './Mario.js';
 import Koopa from './Koopa.js';
-import { Time, text, constrain, Vector, processLevel, processImage, processSpriteBoard, pixelValueToGridPosition } from './helpers.js';
+import { Time, text, constrain, Vector, processLevel, processImage, processSpriteBoard, pixelValueToGridPosition, loadAssets } from './helpers.js';
 import Pickup from './Pickup.js';
 import FireBall from './FireBall.js';
 
@@ -36,45 +36,14 @@ window.LEVEL_NAME = "1";
 }, 1000); */
 
 function preload(callback) {
-  Promise.all([
-    fetch('mario_sheet.png'),
-    fetch('enemies_sheet.png'),
-    fetch('bg.png'),
-    fetch('misc.png'),
-    fetch('bg-plain.png'),
-    fetch(`levels/${LEVEL_NAME}.json`)])
-    .then(([marioSheet, enemiesSheet, bgSheet, miscSheet, bg, level1]) => {
-      Promise.all([
-        processSpriteBoard(marioSheet, 40, 40, 22, 9, 0, 0),
-        processSpriteBoard(enemiesSheet, 40, 40, 11, 9, 0, 0),
-        processSpriteBoard(bgSheet, 16, 16, 16, 16, 0, 0),
-        processSpriteBoard(miscSheet, 23, 22, 1, 19, 30, 429),
-        processImage(bg),
-        processLevel(level1)])
-        .then(([mImgs, eImgs, bgs, ms, bg, level1]) => {
-          const tiles = [...bgs, ...ms];
-          const div = document.createElement("div");
-          div.className = "sprites";
-          let i = 0;
-          for (let sprite of tiles) {
-            sprite.setAttribute('title', i);
-            sprite.className = "sprite";
-            sprite.addEventListener('click', () => {
-              for (let i = 0; i < document.getElementsByClassName("sprite").length; i++) {
-                const element = document.getElementsByClassName("sprite")[i];
-                element.removeAttribute("style");
-              }
-              sprite.style.border = "3px solid rgb(242 44 255)";
-              console.log("SELECTED_TILE_INDEX = " + sprite.getAttribute('title'));
-              SELECTED_TILE_INDEX = parseInt(sprite.getAttribute('title'));
-            });
-            div.appendChild(sprite);
-            i++;
-          }
-          document.body.appendChild(div);
-          callback(mImgs, eImgs, tiles, bg, level1)
-        });
-    })
+  loadAssets([
+    ['mario_sheet.png', processSpriteBoard, 40, 40, 22, 9, 0, 0],
+    ['enemies_sheet.png', processSpriteBoard, 40, 40, 11, 9, 0, 0],
+    ['bg.png', processSpriteBoard, 16, 16, 16, 16, 0, 0],
+    ['misc.png', processSpriteBoard, 23, 22, 1, 19, 30, 429],
+    ['bg-plain.png', processImage],
+    [`levels/${LEVEL_NAME}.json`, processLevel]
+  ]).then((assets) => callback(assets));
 }
 
 function setup([mImgs, eImgs, bgs, bg, level1], callback) {
@@ -286,8 +255,8 @@ function draw() {
   text("Health: " + player.health + "       Score: " + player.score + "       Time: " + TIME.time, 10, 20);
 }
 
-preload((...assets) => {
-  setup([...assets], () => {
+preload((assets) => {
+  setup(assets, () => {
     window.TIME = new Time((deltaTime) => {
       TIME.simulate(deltaTime, (stableDelta) => update(stableDelta));
       draw();
