@@ -1,7 +1,7 @@
 import Tile from './Tile.js';
 import Mario from './Mario.js';
 import Koopa from './Koopa.js';
-import { Time, text, constrain, Vector, processLevel, processImage, processSpriteBoard, pixelValueToGridPosition, loadAssets } from './helpers.js';
+import { Game, text, constrain, Vector, processLevel, processImage, processSpriteBoard, pixelValueToGridPosition, loadAssets } from './helpers.js';
 import Pickup from './Pickup.js';
 import FireBall from './FireBall.js';
 
@@ -32,7 +32,7 @@ window.LEVEL_NAME = "1";
   if (idleCounter > 59) PAUSED = true;
   else if (idleCounter == 1 && PAUSED) {
     PAUSED = false;
-    TIME.start();
+    GAME.start();
   }
 }, 1000); */
 
@@ -252,7 +252,7 @@ function update(deltaTime) {
     player.holding = null;
   }
 
-  if (player.action && player.powerups.includes("FireBalls") && (Math.floor((Math.floor(TIME.lastTime) % 40) / 10) == 1)) {
+  if (player.action && player.powerups.includes("FireBalls") && (Math.floor((Math.floor(GAME.lastTime) % 40) / 10) == 1)) {
     const pos = pixelValueToGridPosition(level, player.pos.x - viewport.x, player.pos.y);
     const x = player.dir > 0 ? pos.x - 1 : pos.x + 2;
     const y = pos.y;
@@ -284,22 +284,19 @@ function draw(deltaTime) {
       tile.showDebug(viewport);
     }
   }
-  player.show(Math.floor((Math.floor(TIME.lastTime) % 300) / 100), debug);
+  player.show(Math.floor((Math.floor(GAME.lastTime) % 300) / 100), debug);
   for (let other of others) {
-    other.show(Math.floor((Math.floor(TIME.lastTime) % 200) / 100), viewport);
+    other.show(Math.floor((Math.floor(GAME.lastTime) % 200) / 100), viewport);
     if (debug && other.showDebug) {
       other.showDebug(viewport);
     }
   }
-  text("Health: " + player.health + "       Score: " + player.score + "       Time: " + TIME.time + "       FPS: " + Math.floor(1 / deltaTime) + "       Entities: " + others.length + "       Tiles: " + tiles.length, 10, 20);
+  text("Health: " + player.health + "       Score: " + player.score + "      Time: " + GAME.time + "       FPS: " + Math.floor(1 / deltaTime) + "       Entities: " + others.length + "       Tiles: " + tiles.length, 10, 20);
 }
 
 preload((assets) => {
   setup(assets, () => {
-    window.TIME = new Time((deltaTime) => {
-      TIME.simulate(deltaTime, (stableDelta) => update(stableDelta));
-      draw(deltaTime);
-    });
+    window.GAME = new Game(update, draw);
   });
 })
 

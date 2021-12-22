@@ -5,8 +5,8 @@ class Vector {
   }
 
   add(vector) {
-    this.x += vector.x * TIME.delaTime;
-    this.y += vector.y * TIME.delaTime;
+    this.x += vector.x * GAME.delaTime;
+    this.y += vector.y * GAME.delaTime;
   }
 
   multi(amount) {
@@ -15,13 +15,14 @@ class Vector {
   }
 }
 
-class Time {
-  constructor(func) {
+class Game {
+  constructor(update, draw) {
     this.lastTime = 0;
     this.delaTime = 0;
     this.accumulator = 0;
     this.step = 1 / 60;
-    this.func = func;
+    this.update = update;
+    this.draw = draw;
     this.time = 0
     this.start();
 
@@ -34,7 +35,11 @@ class Time {
     const loop = (time) => {
       //if (PAUSED) return;
       if (this.lastTime) {
-        this.func((time - this.lastTime) / 1000);
+        const unStableDelta = (time - this.lastTime) / 1000;
+        this.simulate(unStableDelta, (stable) => {
+          this.update(stable)
+          this.draw(stable)
+        })
       }
       this.lastTime = time;
       requestAnimationFrame(loop);
@@ -171,7 +176,7 @@ function addTilesToPage(tiles) {
 
 export {
   Vector,
-  Time,
+  Game,
   constrain,
   text,
   map,
