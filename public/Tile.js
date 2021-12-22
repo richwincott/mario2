@@ -19,9 +19,9 @@ export default class Tile {
     this.collidingCounter = 0;
   }
 
-  update(debug) {
+  update() {
     if (this.colliding) this.collidingCounter++;
-    if (this.collidingCounter > 10 && !debug) {
+    if (this.collidingCounter > 100 && !this.colliding) {
       this.collidingCounter = 0;
       this.colliding = false;
     }

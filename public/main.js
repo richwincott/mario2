@@ -165,6 +165,8 @@ function spawnTile(level, i, j) {
     }
     else if (level[i][j] == 266) {
       const bounce = (other, overlap, character) => {
+        character.pos.y -= Math.abs(overlap.y);
+        character.vel.y = constrain(character.vel.y, -9999, 0);
         character.airBourne = false;
         character.jump(JUMP_HEIGHT * 2);
       }
@@ -213,6 +215,7 @@ function update(deltaTime) {
   player.update(viewport);
   player.tileCollisions(tiles, viewport);
   player.otherCollisions(others, viewport);
+
   for (let other of others) {
     if (other.alive == false) others.splice(others.indexOf(other), 1);
     other.update();
@@ -221,6 +224,7 @@ function update(deltaTime) {
     if (other.tileCollisions)
       other.tileCollisions(tiles, { x: 0 });
   }
+
   viewport.add(viewportV);
   if (player.pos.x > (canvas.width / 2) - (player.w + 1)) {
     viewportV.x = player.vel.x == 0 ? 0 : -MOVE_SPEED;
@@ -232,8 +236,10 @@ function update(deltaTime) {
     viewportV.x = 0;
   }
 
-  for (let tile of tiles) {
-    tile.update(debug);
+  if (debug) {
+    for (let tile of tiles) {
+      tile.update();
+    }
   }
 
   if (player.holding != null && player.hold == false) {
