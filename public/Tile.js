@@ -21,7 +21,7 @@ export default class Tile {
 
   update() {
     if (this.colliding) this.collidingCounter++;
-    if (this.collidingCounter > 100 && !this.colliding) {
+    if (this.collidingCounter > 10) {
       this.collidingCounter = 0;
       this.colliding = false;
     }
