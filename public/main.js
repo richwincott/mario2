@@ -6,6 +6,7 @@ import Pickup from './Pickup.js';
 import FireBall from './FireBall.js';
 
 let canvas;
+let preRenderedTiles;
 let player;
 let others = [];
 let tiles = [];
@@ -46,6 +47,17 @@ function preload(callback) {
   ]).then((assets) => callback(assets));
 }
 
+function preRenderTiles() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 16 * 245;
+  canvas.height = 16 * 28;
+  const ctx = canvas.getContext("2d");
+  for (let tile of tiles) {
+    tile.show(ctx);
+  }
+  return canvas;
+}
+
 function setup([mImgs, eImgs, bgs, bg, level1], callback) {
   canvas = document.getElementById("canvas");
   canvas.width = 800;
@@ -80,6 +92,9 @@ function setup([mImgs, eImgs, bgs, bg, level1], callback) {
       }
     }
   }
+  setTimeout(() => {
+    preRenderedTiles = preRenderTiles();
+  }, 0)
   setInterval(() => {
     if (Math.random() < 0.3 && ENEMY_SPAWNING)
       others.push(new Koopa(canvas.width - viewport.x, 30, koopaImages, -1));
@@ -99,14 +114,14 @@ function spawnTile(level, i, j) {
       character.pos.x += Math.abs(overlap.x);
       if (character.hold && character.holding == null) {
         character.holding = other;
-        tiles.splice(tiles.indexOf(other), 1);
+        others.splice(others.indexOf(other), 1);
       }
     }
     const pickupTileRight = (other, overlap, character) => {
       character.pos.x -= Math.abs(overlap.x);
       if (character.hold && character.holding == null) {
         character.holding = other;
-        tiles.splice(tiles.indexOf(other), 1);
+        others.splice(others.indexOf(other), 1);
       }
     }
     if (level[i][j] == 2) {
@@ -140,22 +155,22 @@ function spawnTile(level, i, j) {
     else if (level[i][j] == 7) {
       const collectCoin = (other, overlap, character) => {
         if (character instanceof Mario) {
-          tiles.splice(tiles.indexOf(other), 1);
+          others.splice(others.indexOf(other), 1);
           player.score += 20;
         }
       }
-      tiles.push(new Tile(j, i, false, bgImgs[level[i][j]], {
+      others.push(new Pickup(j, i, { run: [bgImgs[7]] }, 0, {
         top: collectCoin, bottom: collectCoin, left: collectCoin, right: collectCoin
-      }));
+      }, 0, 0));
     }
     else if (level[i][j] == 266) {
       const bounce = (other, overlap, character) => {
         character.airBourne = false;
         character.jump(JUMP_HEIGHT * 2);
       }
-      tiles.push(new Tile(j, i, false, bgImgs[level[i][j]], {
+      others.push(new Pickup(j, i, { run: [bgImgs[266]] }, 0, {
         top: null, bottom: bounce, left: pickupTileLeft, right: pickupTileRight
-      }));
+      }, 0));
     }
     else if (level[i][j] == 14 || level[i][j] == 15) {
       const pipe = (other, overlap, character) => {
@@ -173,9 +188,9 @@ function spawnTile(level, i, j) {
       }));
     }
     else if (movableTiles.includes(level[i][j])) {
-      tiles.push(new Tile(j, i, false, bgImgs[level[i][j]], {
-        top: null, bottom: null, left: pickupTileLeft, right: pickupTileRight
-      }));
+      others.push(new Pickup(j, i, { run: [bgImgs[level[i][j]]] }, 0, {
+        top: null, bottom: () => null, left: pickupTileLeft, right: pickupTileRight
+      }, 0));
     }
     else {
       if (existing) tiles[tiles.indexOf(existing)] = new Tile(j, i, passableTiles.includes(level[i][j]), bgImgs[level[i][j]]);
@@ -196,7 +211,8 @@ function update(deltaTime) {
     other.update();
     if (other.additionalUpdate)
       other.additionalUpdate();
-    other.tileCollisions(tiles, { x: 0 });
+    if (other.tileCollisions)
+      other.tileCollisions(tiles, { x: 0 });
   }
   viewport.add(viewportV);
   if (player.pos.x > (canvas.width / 2) - (player.w + 1)) {
@@ -209,12 +225,16 @@ function update(deltaTime) {
     viewportV.x = 0;
   }
 
+  for (let tile of tiles) {
+    tile.update(debug);
+  }
+
   if (player.holding != null && player.hold == false) {
     const pos = pixelValueToGridPosition(level, player.pos.x - viewport.x, player.pos.y + (player.h / 2));
     let temp_level = JSON.parse(JSON.stringify(level));
     const x = player.dir > 0 ? pos.x : pos.x + 1;
     const y = pos.y;
-    temp_level[y][x] = parseInt(player.holding.img.getAttribute('title'));
+    temp_level[y][x] = parseInt(player.holding.images.run[0].getAttribute('title'));
     spawnTile(temp_level, y, x);
     player.holding = null;
   }
@@ -245,8 +265,11 @@ function draw() {
       }
     }
   }
-  for (let tile of tiles) {
-    tile.show(viewport, debug);
+  ctx.drawImage(preRenderedTiles, viewport.x, 0);
+  if (debug) {
+    for (let tile of tiles) {
+      tile.showDebug(viewport, debug);
+    }
   }
   player.show(Math.floor((Math.floor(TIME.previous) % 300) / 100), debug);
   for (let other of others) {

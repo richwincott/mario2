@@ -2,13 +2,13 @@ import { Vector, constrain, doBoxesIntersect, flipImg } from './helpers.js';
 import Mario from './Mario.js';
 
 export default class Character {
-  constructor(x, y, images, collisionActions) {
+  constructor(x, y, images, collisionActions, w, h) {
     this.original_pos = new Vector(this instanceof Mario ? (canvas.width / 4) : x, y);
     this.pos = new Vector(x, y);
     this.vel = new Vector(0, 0);
     this.dir = -1;
-    this.w = 20;
-    this.h = 30;
+    this.w = w ? w : 20;
+    this.h = h ? h : 30;
     this.health = 1;
     this.airBourne = false;
     this.collisionActions = collisionActions;
@@ -28,7 +28,8 @@ export default class Character {
   }
 
   update(viewport) {
-    this.vel.y += this.crouch ? GRAVITY * 3 : GRAVITY;
+    const defaultGravity = this.crouch ? GRAVITY * 3 : GRAVITY;
+    this.vel.y += this.gravity != undefined ? this.gravity : defaultGravity;
     this.vel.y = constrain(this.vel.y, -9999, 690);
     this.pos.add(this.vel);
     if (this instanceof Mario)

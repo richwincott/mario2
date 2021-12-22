@@ -19,14 +19,20 @@ export default class Tile {
     this.collidingCounter = 0;
   }
 
-  show(viewport, debug) {
+  update(debug) {
     if (this.colliding) this.collidingCounter++;
     if (this.collidingCounter > 10 && !debug) {
       this.collidingCounter = 0;
       this.colliding = false;
     }
-    ctx.drawImage(this.img, this.pos.x + viewport.x, this.pos.y, this.w, this.h);
-    if (this.colliding && debug) {
+  }
+
+  show(context) {
+    context.drawImage(this.img, this.pos.x, this.pos.y, this.w, this.h);
+  }
+
+  showDebug(viewport) {
+    if (this.colliding) {
       ctx.strokeStyle = "#F00";
       ctx.lineWidth = 1;
       ctx.strokeRect(
