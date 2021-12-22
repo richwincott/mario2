@@ -7,6 +7,7 @@ import FireBall from './FireBall.js';
 
 let canvas;
 let preRenderedTiles;
+let preRenderedEditGrid;
 let player;
 let others = [];
 let tiles = [];
@@ -58,6 +59,23 @@ function preRenderTiles() {
   return canvas;
 }
 
+function preRenderEditGrid() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 16 * 245;
+  canvas.height = 16 * 28;
+  const ctx = canvas.getContext("2d");
+  for (let i = 0; i < level.length; i++) {
+    for (let j = 0; j < level[i].length; j++) {
+      //if (!level[i][j]) {
+      ctx.strokeStyle = "#ccc";
+      ctx.lineWidth = 0.5;
+      ctx.strokeRect(j * 16, i * 16, 17, 16);
+      //}
+    }
+  }
+  return canvas;
+}
+
 function setup([mImgs, eImgs, bgs, bg, level1], callback) {
   canvas = document.getElementById("canvas");
   canvas.width = 800;
@@ -93,6 +111,7 @@ function setup([mImgs, eImgs, bgs, bg, level1], callback) {
     }
   }
   preRenderedTiles = preRenderTiles();
+  preRenderedEditGrid = preRenderEditGrid();
   setInterval(() => {
     if (Math.random() < 0.3 && ENEMY_SPAWNING)
       others.push(new Koopa(canvas.width - viewport.x, 30, koopaImages, -1));
@@ -266,15 +285,7 @@ function draw(deltaTime) {
     ctx.drawImage(bgImg, (i * bgImg.width) + (viewport.x * 0.8), 0);
   }
   if (editMode) {
-    for (let i = 0; i < level.length; i++) {
-      for (let j = 0; j < level[i].length; j++) {
-        if (!level[i][j]) {
-          ctx.strokeStyle = "#ccc";
-          ctx.lineWidth = 0.5;
-          ctx.strokeRect((j * 16) + viewport.x, i * 16, 17, 16);
-        }
-      }
-    }
+    ctx.drawImage(preRenderedEditGrid, viewport.x, 0);
   }
   ctx.drawImage(preRenderedTiles, viewport.x, 0);
   if (debug) {
