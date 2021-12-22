@@ -29,7 +29,7 @@ export default class FireBall extends Entity {
 
   additionalUpdate() {
     this.timeAlive++;
-    if (this.timeAlive > 250) {
+    if (this.timeAlive > 100) {
       this.alive = false;
     }
   }

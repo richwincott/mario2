@@ -9,7 +9,8 @@ export default class Entity {
     this.dir = -1;
     this.w = w ? w : 20;
     this.h = h ? h : 30;
-    this.health = 1;
+    this.health = 1; // used for player
+    this.alive = true; // used for others
     this.airBourne = false;
     this.collisionActions = collisionActions;
     this.collisionsEnabled = true;
@@ -38,7 +39,9 @@ export default class Entity {
     this.vel.x = constrain(this.vel.x, -MOVE_SPEED, MOVE_SPEED);
 
     if (this.pos.y > canvas.height + 100) {
-      this.respawn();
+      if (this instanceof Mario)
+        this.respawn();
+      else this.alive = false;
     }
 
     if (this.obstructedTime > 10) {

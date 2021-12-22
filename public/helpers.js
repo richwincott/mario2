@@ -33,10 +33,10 @@ class Time {
   start() {
     const loop = (time) => {
       //if (PAUSED) return;
-      if (this.previous) {
-        this.func((time - this.previous) / 1000);
+      if (this.lastTime) {
+        this.func((time - this.lastTime) / 1000);
       }
-      this.previous = time;
+      this.lastTime = time;
       requestAnimationFrame(loop);
     }
     loop();

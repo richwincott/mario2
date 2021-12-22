@@ -252,7 +252,7 @@ function update(deltaTime) {
     player.holding = null;
   }
 
-  if (player.action && player.powerups.includes("FireBalls") && (Math.floor((Math.floor(TIME.previous) % 40) / 10) == 1)) {
+  if (player.action && player.powerups.includes("FireBalls") && (Math.floor((Math.floor(TIME.lastTime) % 40) / 10) == 1)) {
     const pos = pixelValueToGridPosition(level, player.pos.x - viewport.x, player.pos.y);
     const x = player.dir > 0 ? pos.x - 1 : pos.x + 2;
     const y = pos.y;
@@ -262,7 +262,7 @@ function update(deltaTime) {
   }
 }
 
-function draw() {
+function draw(deltaTime) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   for (let i = 0; i < 5; i++) {
     ctx.drawImage(bgImg, (i * bgImg.width) + (viewport.x * 0.8), 0);
@@ -284,21 +284,21 @@ function draw() {
       tile.showDebug(viewport);
     }
   }
-  player.show(Math.floor((Math.floor(TIME.previous) % 300) / 100), debug);
+  player.show(Math.floor((Math.floor(TIME.lastTime) % 300) / 100), debug);
   for (let other of others) {
-    other.show(Math.floor((Math.floor(TIME.previous) % 200) / 100), viewport);
+    other.show(Math.floor((Math.floor(TIME.lastTime) % 200) / 100), viewport);
     if (debug && other.showDebug) {
       other.showDebug(viewport);
     }
   }
-  text("Health: " + player.health + "       Score: " + player.score + "       Time: " + TIME.time, 10, 20);
+  text("Health: " + player.health + "       Score: " + player.score + "       Time: " + TIME.time + "       FPS: " + Math.floor(1 / deltaTime) + "       Entities: " + others.length + "       Tiles: " + tiles.length, 10, 20);
 }
 
 preload((assets) => {
   setup(assets, () => {
     window.TIME = new Time((deltaTime) => {
       TIME.simulate(deltaTime, (stableDelta) => update(stableDelta));
-      draw();
+      draw(deltaTime);
     });
   });
 })
