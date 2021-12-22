@@ -26,16 +26,16 @@ window.GRAVITY = 20;
 window.MOVE_SPEED = 140;
 window.JUMP_HEIGHT = 400;
 window.LEVEL_NAME = "1";
-//window.PAUSED = false;
+window.PAUSED = false;
 
-/* setInterval(() => {
-  idleCounter++
-  if (idleCounter > 59) PAUSED = true;
-  else if (idleCounter == 1 && PAUSED) {
-    PAUSED = false;
-    GAME.start();
-  }
-}, 1000); */
+window.addEventListener("blur", () => {
+  PAUSED = true;
+})
+
+window.addEventListener("focus", () => {
+  PAUSED = false;
+  requestAnimationFrame(GAME.loop.bind(GAME));
+})
 
 function preload(callback) {
   loadAssets([
@@ -349,10 +349,6 @@ function keyReleased(ev) {
 }
 
 function mouseClick(ev) {
-  /* if (PAUSED) {
-    idleCounter = 0;
-    return;
-  } */
   if (editMode) {
     const mouseX = ev.offsetX - viewport.x;
     const mouseY = ev.offsetY;

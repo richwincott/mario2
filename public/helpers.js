@@ -24,27 +24,24 @@ class Game {
     this.update = update;
     this.draw = draw;
     this.time = 0
-    this.start();
+    this.loop();
 
     setInterval(() => {
       this.time++;
     }, 1000);
   }
 
-  start() {
-    const loop = (time) => {
-      //if (PAUSED) return;
-      if (this.lastTime) {
-        const unStableDelta = (time - this.lastTime) / 1000;
-        this.simulate(unStableDelta, (stable) => {
-          this.update(stable)
-          this.draw(stable)
-        })
-      }
-      this.lastTime = time;
-      requestAnimationFrame(loop);
+  loop(time) {
+    if (PAUSED) return;
+    if (this.lastTime) {
+      const unStableDelta = (time - this.lastTime) / 1000;
+      this.simulate(unStableDelta, (stable) => {
+        this.update(stable)
+        this.draw(stable)
+      })
     }
-    loop();
+    this.lastTime = time;
+    requestAnimationFrame(this.loop.bind(this));
   }
 
   simulate(deltaTime, cb) {
