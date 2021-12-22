@@ -51,7 +51,7 @@ export default class Mario extends Character {
       ctx.drawImage(this.holding.images.run[0], this.dir > 0 ? (this.pos.x - 15) : (this.pos.x + 10), this.pos.y + 10, this.holding.images.run[0].width, this.holding.images.run[0].height);
     }
     if (debug) {
-      ctx.strokeStyle = "#F00";
+      ctx.strokeStyle = "#0FF";
       ctx.lineWidth = 1;
       ctx.strokeRect(
         this.pos.x, //this.h > 50 ? this.pos.x : this.pos.x + 20,
