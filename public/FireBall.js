@@ -1,6 +1,6 @@
-import Character from './Character.js';
+import Entity from './Entity.js';
 
-export default class FireBall extends Character {
+export default class FireBall extends Entity {
   constructor(j, i, images, dir, collisionActions) {
     const dim = { x: images.run[0].width, y: images.run[0].height };
     const gs = 16;

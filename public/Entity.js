@@ -1,7 +1,7 @@
 import { Vector, constrain, doBoxesIntersect, flipImg } from './helpers.js';
 import Mario from './Mario.js';
 
-export default class Character {
+export default class Entity {
   constructor(x, y, images, collisionActions, w, h) {
     this.original_pos = new Vector(this instanceof Mario ? (canvas.width / 4) : x, y);
     this.pos = new Vector(x, y);

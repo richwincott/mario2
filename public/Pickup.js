@@ -1,6 +1,6 @@
-import Character from './Character.js';
+import Entity from './Entity.js';
 
-export default class Pickup extends Character {
+export default class Pickup extends Entity {
   constructor(j, i, images, dir, collisionActions, offsetY, gravity) {
     const gs = 16;
     const x = j * gs;

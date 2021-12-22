@@ -1,6 +1,6 @@
-import Character from './Character.js';
+import Entity from './Entity.js';
 
-export default class Koopa extends Character {
+export default class Koopa extends Entity {
   constructor(x, y, images, dir) {
     super(x, y, images);
     setTimeout(() => {

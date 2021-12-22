@@ -1,7 +1,7 @@
 import { flipImg } from './helpers.js';
-import Character from './Character.js';
+import Entity from './Entity.js';
 
-export default class Mario extends Character {
+export default class Mario extends Entity {
   constructor(x, y, images, imagesFire) {
     super(x, y, images);
     this.crouch = false;

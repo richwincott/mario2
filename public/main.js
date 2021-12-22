@@ -110,39 +110,39 @@ function spawnTile(level, i, j) {
   })[0];
   //console.log("existing", existing)
   if (level[i][j]) {
-    const pickupTileLeft = (other, overlap, character) => {
-      character.pos.x += Math.abs(overlap.x);
-      if (character.hold && character.holding == null) {
-        character.holding = other;
+    const pickupTileLeft = (other, overlap, entity) => {
+      entity.pos.x += Math.abs(overlap.x);
+      if (entity.hold && entity.holding == null) {
+        entity.holding = other;
         others.splice(others.indexOf(other), 1);
       }
     }
-    const pickupTileRight = (other, overlap, character) => {
-      character.pos.x -= Math.abs(overlap.x);
-      if (character.hold && character.holding == null) {
-        character.holding = other;
+    const pickupTileRight = (other, overlap, entity) => {
+      entity.pos.x -= Math.abs(overlap.x);
+      if (entity.hold && entity.holding == null) {
+        entity.holding = other;
         others.splice(others.indexOf(other), 1);
       }
     }
     if (level[i][j] == 2) {
-      const increaseHealth = (other, overlap, character) => {
-        if (character instanceof Mario) {
+      const increaseHealth = (other, overlap, entity) => {
+        if (entity instanceof Mario) {
           others.splice(others.indexOf(other), 1);
           player.health++;
         }
       }
-      const collectFireBalls = (other, overlap, character) => {
-        if (character instanceof Mario) {
+      const collectFireBalls = (other, overlap, entity) => {
+        if (entity instanceof Mario) {
           others.splice(others.indexOf(other), 1);
           player.powerups.push("FireBalls");
         }
       }
-      const spawnItem = (other, overlap, character) => {
-        if (character instanceof Mario) {
+      const spawnItem = (other, overlap, entity) => {
+        if (entity instanceof Mario) {
           const randomNo = Math.random() < 0.5;
           const collectAction = randomNo < 0.5 ? increaseHealth : collectFireBalls;
-          character.pos.y += Math.abs(overlap.y);
-          character.vel.y = constrain(character.vel.y, 0, 9999);
+          entity.pos.y += Math.abs(overlap.y);
+          entity.vel.y = constrain(entity.vel.y, 0, 9999);
           others.push(new Pickup(j, i - 2, { run: [bgImgs[randomNo < 0.5 ? 260 : 256]] }, -1, {
             top: collectAction, bottom: collectAction, left: collectAction, right: collectAction
           }, 0));
@@ -153,8 +153,8 @@ function spawnTile(level, i, j) {
       }));
     }
     else if (level[i][j] == 7) {
-      const collectCoin = (other, overlap, character) => {
-        if (character instanceof Mario) {
+      const collectCoin = (other, overlap, entity) => {
+        if (entity instanceof Mario) {
           others.splice(others.indexOf(other), 1);
           player.score += 20;
         }
@@ -164,24 +164,24 @@ function spawnTile(level, i, j) {
       }, 0, 0));
     }
     else if (level[i][j] == 266) {
-      const bounce = (other, overlap, character) => {
-        character.pos.y -= Math.abs(overlap.y);
-        character.vel.y = constrain(character.vel.y, -9999, 0);
-        character.airBourne = false;
-        character.jump(JUMP_HEIGHT * 2);
+      const bounce = (other, overlap, entity) => {
+        entity.pos.y -= Math.abs(overlap.y);
+        entity.vel.y = constrain(entity.vel.y, -9999, 0);
+        entity.airBourne = false;
+        entity.jump(JUMP_HEIGHT * 2);
       }
       others.push(new Pickup(j, i, { run: [bgImgs[266]] }, 0, {
         top: null, bottom: bounce, left: pickupTileLeft, right: pickupTileRight
       }, 0));
     }
     else if (level[i][j] == 14 || level[i][j] == 15) {
-      const pipe = (other, overlap, character) => {
-        character.airBourne = false;
-        character.pos.y -= Math.abs(overlap.y);
-        character.vel.y = constrain(character.vel.y, -9999, 0);
-        if (character.crouch) {
-          character.pos.x = canvas.width / 4;
-          character.crouch = false;
+      const pipe = (other, overlap, entity) => {
+        entity.airBourne = false;
+        entity.pos.y -= Math.abs(overlap.y);
+        entity.vel.y = constrain(entity.vel.y, -9999, 0);
+        if (entity.crouch) {
+          entity.pos.x = canvas.width / 4;
+          entity.crouch = false;
           viewport.x = -1295;
         }
       }
@@ -191,10 +191,10 @@ function spawnTile(level, i, j) {
     }
     else if (movableTiles.includes(level[i][j])) {
       others.push(new Pickup(j, i, { run: [bgImgs[level[i][j]]] }, 0, {
-        top: null, bottom: (other, overlap, character) => {
-          character.airBourne = false;
-          character.pos.y -= Math.abs(overlap.y);
-          character.vel.y = constrain(character.vel.y, -9999, 0);
+        top: null, bottom: (other, overlap, entity) => {
+          entity.airBourne = false;
+          entity.pos.y -= Math.abs(overlap.y);
+          entity.vel.y = constrain(entity.vel.y, -9999, 0);
         }, left: pickupTileLeft, right: pickupTileRight
       }, 0));
     }
