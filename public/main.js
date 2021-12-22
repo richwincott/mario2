@@ -204,6 +204,9 @@ function spawnTile(level, i, j) {
   else {
     if (existing) tiles.splice(tiles.indexOf(existing), 1);
   }
+  if (editMode) {
+    preRenderedTiles = preRenderTiles()
+  }
 }
 
 function update(deltaTime) {
@@ -272,7 +275,10 @@ function draw() {
   ctx.drawImage(preRenderedTiles, viewport.x, 0);
   if (debug) {
     for (let tile of tiles) {
-      tile.showDebug(viewport, debug);
+      tile.showDebug(viewport);
+    }
+    for (let other of others) {
+      other.showDebug(viewport);
     }
   }
   player.show(Math.floor((Math.floor(TIME.previous) % 300) / 100), debug);

@@ -36,7 +36,10 @@ export default class Pickup extends Character {
     const x = ((gs / 2)) - dim.x / 2;
     const y = ((gs / 2)) - dim.y / 2;
     ctx.drawImage(img, (this.pos.x + x) + viewport.x, (this.pos.y + y) + this.offsetY, img.width, img.height);
-    ctx.strokeStyle = "#F00";
+  }
+
+  showDebug(viewport) {
+    ctx.strokeStyle = "#FF0";
     ctx.lineWidth = 1;
     ctx.strokeRect(
       this.pos.x + viewport.x, //this.h > 50 ? this.pos.x : this.pos.x + 20,
