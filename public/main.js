@@ -145,7 +145,7 @@ function spawnTile(level, i, j) {
           character.vel.y = constrain(character.vel.y, 0, 9999);
           others.push(new Pickup(j, i - 2, { run: [bgImgs[randomNo < 0.5 ? 260 : 256]] }, -1, {
             top: collectAction, bottom: collectAction, left: collectAction, right: collectAction
-          }));
+          }, 0));
         }
       }
       tiles.push(new Tile(j, i, false, bgImgs[level[i][j]], {
@@ -189,7 +189,11 @@ function spawnTile(level, i, j) {
     }
     else if (movableTiles.includes(level[i][j])) {
       others.push(new Pickup(j, i, { run: [bgImgs[level[i][j]]] }, 0, {
-        top: null, bottom: () => null, left: pickupTileLeft, right: pickupTileRight
+        top: null, bottom: (other, overlap, character) => {
+          character.airBourne = false;
+          character.pos.y -= Math.abs(overlap.y);
+          character.vel.y = constrain(character.vel.y, -9999, 0);
+        }, left: pickupTileLeft, right: pickupTileRight
       }, 0));
     }
     else {

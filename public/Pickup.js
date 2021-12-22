@@ -33,16 +33,16 @@ export default class Pickup extends Character {
     let img = this.images.run[0];
     const dim = { x: img.width, y: img.height };
     const gs = 16;
-    const x = ((this.j * gs) + (gs / 2)) - dim.x / 2;
-    const y = ((this.i * gs) + (gs / 2)) - dim.y / 2;
-    ctx.drawImage(img, x + viewport.x, y + this.offsetY, img.width, img.height);
-    /* ctx.strokeStyle = "#F00";
+    const x = ((gs / 2)) - dim.x / 2;
+    const y = ((gs / 2)) - dim.y / 2;
+    ctx.drawImage(img, (this.pos.x + x) + viewport.x, (this.pos.y + y) + this.offsetY, img.width, img.height);
+    ctx.strokeStyle = "#F00";
     ctx.lineWidth = 1;
     ctx.strokeRect(
       this.pos.x + viewport.x, //this.h > 50 ? this.pos.x : this.pos.x + 20,
       this.pos.y,
       this.w, //this.h > 50 ? this.w : this.w - 40,
       this.h
-    ); */
+    );
   }
 }
