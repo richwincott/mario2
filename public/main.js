@@ -92,9 +92,7 @@ function setup([mImgs, eImgs, bgs, bg, level1], callback) {
       }
     }
   }
-  setTimeout(() => {
-    preRenderedTiles = preRenderTiles();
-  }, 0)
+  preRenderedTiles = preRenderTiles();
   setInterval(() => {
     if (Math.random() < 0.3 && ENEMY_SPAWNING)
       others.push(new Koopa(canvas.width - viewport.x, 30, koopaImages, -1));
