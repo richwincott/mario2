@@ -283,13 +283,13 @@ function draw() {
     for (let tile of tiles) {
       tile.showDebug(viewport);
     }
-    for (let other of others) {
-      other.showDebug(viewport);
-    }
   }
   player.show(Math.floor((Math.floor(TIME.previous) % 300) / 100), debug);
   for (let other of others) {
     other.show(Math.floor((Math.floor(TIME.previous) % 200) / 100), viewport);
+    if (debug && other.showDebug) {
+      other.showDebug(viewport);
+    }
   }
   text("Health: " + player.health + "       Score: " + player.score + "       Time: " + TIME.time, 10, 20);
 }
