@@ -139,12 +139,14 @@ export default class Entity {
       (other, overlap) => {
         if (other.collisionActions && other.collisionActions.bottom) other.collisionActions.bottom(other, overlap, this);
         else {
-          other.takeDamage();
-          this.vel.y = 0;
-          this.vel.x = 0;
-          this.airBourne = false;
-          this.jump();
-          this.score += 5;
+          if (other instanceof Mario) {
+            other.takeDamage();
+            this.vel.y = 0;
+            this.vel.x = 0;
+            this.airBourne = false;
+            this.jump();
+            this.score += 5;
+          }
         }
       },
       (other, overlap) => {
@@ -154,7 +156,7 @@ export default class Entity {
             this.takeDamage();
           else {
             other.takeDamage();
-            this.alive = false;
+            setTimeout(() => this.alive = false, 200);
           }
         }
       },
@@ -165,7 +167,7 @@ export default class Entity {
             this.takeDamage();
           else {
             other.takeDamage();
-            this.alive = false;
+            setTimeout(() => this.alive = false, 200);
           }
         }
       }
