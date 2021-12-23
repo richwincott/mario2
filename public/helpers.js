@@ -137,6 +137,8 @@ function flipImg(img) {
   ictx.translate(img.width, 0);
   ictx.scale(-1, 1);
   ictx.drawImage(img, 0, 0);
+  flippedImg.className = img.className;
+  flippedImg.setAttribute('title', img.getAttribute('title'));
   return flippedImg;
 }
 
