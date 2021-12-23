@@ -48,7 +48,7 @@ export default class Mario extends Entity {
     }
     ctx.drawImage(img, (this.pos.x - 10), this.pos.y - yOffset, img.width, img.height);
     if (this.holding) {
-      ctx.drawImage(this.holding.images.run[0], this.dir > 0 ? (this.pos.x - 15) : (this.pos.x + 10), this.pos.y + 10, this.holding.images.run[0].width, this.holding.images.run[0].height);
+      ctx.drawImage(this.holding.images[runKey][0], this.dir > 0 ? (this.pos.x - 15) : (this.pos.x + 10), this.pos.y + 10, this.holding.images[runKey][0].width, this.holding.images[runKey][0].height);
     }
     if (debug) {
       ctx.strokeStyle = "#0FF";

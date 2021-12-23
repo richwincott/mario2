@@ -19,7 +19,7 @@ let debug = false;
 let koopaImages;
 let level;
 let passableTiles = [125, 126, 127, 70, 16, 17, 18, 7, 22, 23, 93, 94, 95, 141, 142, 143, 77, 78, 79, 109, 110, 111, 3, 260];
-let movableTiles = [267, 262]; //266 remove as handle specifically
+let movableTiles = [267, 262, 275]; //266 remove as handle specifically
 //let idleCounter = 0;
 
 window.GRAVITY = 20;
@@ -43,6 +43,7 @@ function preload(callback) {
     ['enemies_sheet.png', processSpriteBoard, 40, 40, 11, 9, 0, 0],
     ['bg.png', processSpriteBoard, 16, 16, 16, 16, 0, 0],
     ['misc.png', processSpriteBoard, 23, 22, 1, 19, 30, 429],
+    ['misc.png', processSpriteBoard, 23, 22, 1, 1, 30, 449],
     ['bg-plain.png', processImage],
     [`levels/${LEVEL_NAME}.json`, processLevel]
   ]).then((assets) => callback(assets));

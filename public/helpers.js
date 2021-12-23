@@ -115,8 +115,8 @@ function loadAssets(assets) {
     Promise.all(assets.map(([url]) => fetch(url))).then((data) => {
       Promise.all(assets.map(([url, processingFnc, tileSizeX, tileSizeY, rows, cols, offsetX, offsetY], index) => {
         return processingFnc(data[index], tileSizeX, tileSizeY, rows, cols, offsetX, offsetY)
-      })).then(([mImgs, eImgs, bgs, ms, bg, level1]) => {
-        const tiles = [...bgs, ...ms];
+      })).then(([mImgs, eImgs, bgs, ms, gun, bg, level1]) => {
+        const tiles = [...bgs, ...ms, ...gun];
         addTilesToPage(tiles);
         resolve([mImgs, eImgs, tiles, bg, level1])
       })
