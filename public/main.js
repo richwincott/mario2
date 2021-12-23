@@ -241,6 +241,8 @@ function update(deltaTime) {
       other.additionalUpdate();
     if (other.tileCollisions)
       other.tileCollisions(tiles, { x: 0 });
+    if (other instanceof FireBall)
+      other.otherCollisions(others, { x: 0 });
   }
 
   viewport.add(viewportV);

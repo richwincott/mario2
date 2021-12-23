@@ -150,13 +150,23 @@ export default class Entity {
       (other, overlap) => {
         if (other.collisionActions && other.collisionActions.left) other.collisionActions.left(other, overlap, this);
         else {
-          this.takeDamage()
+          if (other instanceof Mario)
+            this.takeDamage();
+          else {
+            other.takeDamage();
+            this.alive = false;
+          }
         }
       },
       (other, overlap) => {
         if (other.collisionActions && other.collisionActions.right) other.collisionActions.right(other, overlap, this);
         else {
-          this.takeDamage()
+          if (other instanceof Mario)
+            this.takeDamage();
+          else {
+            other.takeDamage();
+            this.alive = false;
+          }
         }
       }
     )
